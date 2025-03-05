@@ -9,7 +9,7 @@ import Footer from './components/common/Footer';
 import HomePage from './pages/HomePage.jsx';
 import DesignToolsPage from './pages/DesignToolsPage';
 import MarketplacePage from './pages/MarketplacePage';
-// import AboutPage from './pages/AboutPage';
+import AboutPage from './pages/AboutPage';
 
 // Import design tool pages
 import VirtualFittingPage from './pages/design-tools/VirtualFittingPage';
@@ -32,7 +32,7 @@ const App = () => {
             <Route path="/design-tools/ai-suggestions" element={<AiSuggestionsPage />} />
             <Route path="/design-tools/custom-editor" element={<CustomEditorPage />} />
             <Route path="/marketplace" element={<MarketplacePage />} />
-            {/* <Route path="/about" element={<AboutPage />} /> */}
+            <Route path="/about" element={<AboutPage />} />
           </Routes>
         </main>
         <Footer />
