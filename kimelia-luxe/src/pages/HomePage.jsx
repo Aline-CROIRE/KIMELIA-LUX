@@ -1,5 +1,5 @@
 // src/pages/HomePage.jsx
-import React, { useState, useEffect, useRef } from 'react';
+import React from 'react'; // Removed useState, useEffect, useRef
 import { Link } from 'react-router-dom';
 import { FiArrowRight } from 'react-icons/fi';
 import { FiCamera, FiPenTool, FiZap, FiEdit, FiShoppingBag, FiUser, FiTruck, FiCreditCard } from "react-icons/fi";
@@ -8,43 +8,22 @@ import styled, { keyframes } from 'styled-components';
 import { motion } from 'framer-motion';
 import Button from '../components/common/Button';
 
-import image1 from '../assets/images/hy8.jpg';
-import image2 from '../assets/images/hy5.jpg';
-import image3 from '../assets/images/hy6.jpg';
+import image1 from '../assets/images/bgbanner.webp'; 
+
 
 import market from '../assets/images/mmrkt.webp';
 import custm from '../assets/images/cust.webp'
 
 // Apply a global background gradient
 const PageWrapper = styled.div`
-  background: linear-gradient(135deg, #1a1a2e,rgb(55, 61, 77),rgb(31, 32, 33)); /* Deep, stylish gradient */
-  color: #FFFFFF;
+  background: white,
+  color:rgb(19, 17, 17);
   min-height: 100vh;
   overflow-x: hidden;
   font-family: 'Poppins', sans-serif; /* A more modern fashion-friendly font */
 `;
 
-
-// Keyframes for fading in
-const fadeIn = keyframes`
-  0% {
-    opacity: 0;
-  }
-  100% {
-    opacity: 1;
-  }
-`;
-
-// Keyframes for fading out
-const fadeOut = keyframes`
-  0% {
-    opacity: 1;
-  }
-  100% {
-    opacity: 0;
-  }
-`;
-
+// Hero Section
 const HeroSection = styled.section`
   height: 70vh;
   min-height: 400px;
@@ -52,7 +31,11 @@ const HeroSection = styled.section`
   align-items: center;
   position: relative;
   overflow: hidden;
-  background: linear-gradient(135deg, #232526, #414345);
+  /*background: linear-gradient(135deg, #232526, #414345);*/ /*Removed bg image gradient*/
+  background-size: cover;
+  background-position: center;
+  background-repeat: no-repeat;
+  background-image: url(${image1});
 
   &::before {
     content: '';
@@ -74,19 +57,18 @@ const HeroSection = styled.section`
     display: flex;
     align-items: center;
     justify-content: center;
+    display:none;
   }
 
   img {
     max-width: 100%;
     max-height: 100%;
-    object-fit: contain;
-    object-position: center;
+  
     position: absolute;
     top: 0;
     left: 0;
     width: 100%;
     height: 100%;
-    animation: ${props => (props.isLeaving ? fadeOut : fadeIn)} 3s ease-in-out forwards;
   }
 `;
 
@@ -140,21 +122,22 @@ const HeroButtons = styled(motion.div)`
 // Features Section
 const FeaturesSection = styled.section`
   padding: 5rem 2rem;
-  background: transparent;
+  background: white; /* Changed background to white */
+  color: black; /* Changed default color to black */
 `;
 
 const SectionTitle = styled.h2`
   font-size: 2.5rem;
   text-align: center;
   margin-bottom: 1rem;
-  color: #FFFFFF;
+  color: black; /* Changed color to black */
 `;
 
 const SectionSubtitle = styled.p`
   text-align: center;
   max-width: 600px;
   margin: 0 auto 3rem;
-  color: #D3D3D3;
+  color: rgba(0, 0, 0, 0.7); /* Changed color to black with opacity */
 `;
 
 const FeaturesGrid = styled.div`
@@ -174,15 +157,15 @@ const FeaturesGrid = styled.div`
 `;
 
 const FeatureCard = styled(motion.div)`
-  background: rgba(255, 255, 255, 0.1);
+  background: rgba(0, 0, 0, 0.05); /* Light black background */
   border-radius: 8px;
   padding: 2rem;
-  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.1);
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.05); /* Lighter shadow */
   transition: transform 0.3s ease, box-shadow 0.3s ease;
 
   &:hover {
     transform: translateY(-5px);
-    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.2);
+    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1); /* Slightly stronger shadow on hover */
   }
 `;
 
@@ -194,22 +177,22 @@ const FeatureIcon = styled.div`
   align-items: center;
   justify-content: center;
   margin-bottom: 1.5rem;
-  background: #607D8B;
+  background: #D4AF37; /* Gold background for icon (D4AF37 is a good gold) */
 
   svg {
     font-size: 1.5rem;
-    color: #FFFFFF;
+    color: black; /* Black icon color */
   }
 `;
 
 const FeatureTitle = styled.h3`
   font-size: 1.2rem;
   margin-bottom: 1rem;
-  color: #FFFFFF;
+  color: black; /* Changed color to black */
 `;
 
 const FeatureDescription = styled.p`
-  color: #D3D3D3;
+  color: rgba(0, 0, 0, 0.7); /* Changed color to black with opacity */
   margin-bottom: 1.5rem;
   line-height: 1.6;
 `;
@@ -217,7 +200,7 @@ const FeatureDescription = styled.p`
 const FeatureLink = styled(Link)`
   display: inline-flex;
   align-items: center;
-  color: #B0BEC5;
+  color: #D4AF37; /* Gold link color (D4AF37 is a good gold) */
   font-weight: 500;
 
   svg {
@@ -233,7 +216,8 @@ const FeatureLink = styled(Link)`
 // E-commerce Section
 const EcommerceSection = styled.section`
   padding: 5rem 2rem;
-  background: transparent;
+  background: white; /* Changed background to white */
+  color: black; /* Changed default color to black */
 `;
 
 const EcommerceContent = styled.div`
@@ -254,11 +238,11 @@ const EcommerceInfo = styled.div``;
 const EcommerceTitle = styled.h2`
   font-size: 2.5rem;
   margin-bottom: 1.5rem;
-  color: #FFFFFF;
+  color: black; /* Changed color to black */
 `;
 
 const EcommerceDescription = styled.p`
-  color: #D3D3D3;
+  color: rgba(0, 0, 0, 0.7); /* Changed color to black with opacity */
   margin-bottom: 2rem;
   line-height: 1.6;
 `;
@@ -282,11 +266,11 @@ const FeatureItemIcon = styled.div`
   align-items: center;
   justify-content: center;
   margin-right: 1rem;
-  background: #607D8B;
+  background: #D4AF37; /* Gold background for icon (D4AF37 is a good gold) */
 
   svg {
     font-size: 1rem;
-    color: #FFFFFF;
+    color: black; /* Black icon color */
   }
 `;
 
@@ -295,11 +279,11 @@ const FeatureItemContent = styled.div``;
 const FeatureItemTitle = styled.h4`
   font-size: 1.1rem;
   margin-bottom: 0.5rem;
-  color: #FFFFFF;
+  color: black; /* Changed color to black */
 `;
 
 const FeatureItemDescription = styled.p`
-  color: #D3D3D3;
+  color: rgba(0, 0, 0, 0.7); /* Changed color to black with opacity */
   font-size: 0.9rem;
 `;
 
@@ -332,8 +316,8 @@ const EcommerceImage = styled.div`
 // CTA Section
 const CTASection = styled.section`
   padding: 5rem 2rem;
-  background: transparent;
-  color: #FFFFFF;
+  background: white; /* Changed background to white */
+  color: black; /* Changed default color to black */
 `;
 
 const CTAContent = styled.div`
@@ -345,14 +329,14 @@ const CTAContent = styled.div`
 const CTATitle = styled.h2`
   font-size: 2.5rem;
   margin-bottom: 1.5rem;
-  color: #FFFFFF;
+  color: black; /* Changed color to black */
 `;
 
 const CTADescription = styled.p`
   margin-bottom: 2rem;
   font-size: 1.1rem;
   opacity: 0.9;
-  color: #D3D3D3;
+  color: rgba(0, 0, 0, 0.7); /* Changed color to black with opacity */
 `;
 
 const CTAButtons = styled.div`
@@ -421,44 +405,12 @@ const ecommerceFeatures = [
 ];
 
 const HomePage = () => {
-  const [currentImageIndex, setCurrentImageIndex] = useState(0);
-  const images = [image1, image2, image3];
-  const [isLeaving, setIsLeaving] = useState(false);
-
-  const timeoutRef = useRef(null);
-
-  useEffect(() => {
-    const cycleImages = () => {
-      setIsLeaving(true);
-
-      if (timeoutRef.current) {
-        clearTimeout(timeoutRef.current);
-      }
-
-      timeoutRef.current = setTimeout(() => {
-        setIsLeaving(false);
-        setCurrentImageIndex((prevIndex) => (prevIndex + 1) % images.length);
-      }, 3000);
-    };
-
-    const intervalId = setInterval(cycleImages, 6000);
-
-    cycleImages();
-
-    return () => {
-      clearInterval(intervalId);
-      clearTimeout(timeoutRef.current);
-    };
-  }, [images.length]);
 
   return (
     <PageWrapper>
-      <HeroSection isLeaving={isLeaving}>
+      <HeroSection>
         <div className="image-container">
-          <img
-            src={images[currentImageIndex]}
-            alt="Hero Image"
-          />
+         
         </div>
         <HeroContent>
           <HeroTitle
