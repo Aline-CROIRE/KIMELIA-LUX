@@ -17,12 +17,13 @@ import custm from '../assets/images/cust.webp'
 
 // Apply a global background gradient
 const PageWrapper = styled.div`
-  background: linear-gradient(135deg, #232526, #414345);
+  background: linear-gradient(135deg, #1a1a2e,rgb(55, 61, 77),rgb(31, 32, 33)); /* Deep, stylish gradient */
   color: #FFFFFF;
   min-height: 100vh;
   overflow-x: hidden;
-  font-family: 'Arial', sans-serif;
+  font-family: 'Poppins', sans-serif; /* A more modern fashion-friendly font */
 `;
+
 
 // Keyframes for fading in
 const fadeIn = keyframes`

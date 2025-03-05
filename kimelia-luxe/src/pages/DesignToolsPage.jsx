@@ -2,6 +2,11 @@ import React from 'react';
 import { Link } from 'react-router-dom';
 import styled from 'styled-components';
 import { FiCamera, FiPenTool, FiZap, FiEdit, FiArrowRight } from 'react-icons/fi';
+import backgroundImage from '../assets/images/bg.webp'
+import virtual from '../assets/images/virtual.webp'
+import d3 from '../assets/images/3D.webp'
+import suggestion from '../assets/images/suggestion.webp'
+import edit from '../assets/images/editor.webp'
 
 const DesignToolsPage = () => {
   return (
@@ -25,7 +30,7 @@ const DesignToolsPage = () => {
             {/* Virtual Fitting Room */}
             <ToolItem>
               <ToolImage>
-                <img src="/images/virtual-fitting.jpg" alt="Virtual Fitting Room" />
+                <img src={virtual} alt="Virtual Fitting Room" />
               </ToolImage>
               <ToolContent>
                 <ToolIcon>
@@ -33,7 +38,7 @@ const DesignToolsPage = () => {
                 </ToolIcon>
                 <h2>Virtual Fitting Room</h2>
                 <p>
-                  Upload photos and virtually try on clothes. Our AI technology ensures accurate sizing and fit, reducing returns and increasing customer satisfaction.
+                  Upload photos and virtually try on clothes. Our technology ensures accurate sizing and fit, reducing returns and increasing customer satisfaction.
                 </p>
                 <FeatureList>
                   <li>
@@ -55,7 +60,7 @@ const DesignToolsPage = () => {
             {/* 3D Fashion Sketch Tool */}
             <ToolItem reverse>
               <ToolImage>
-                <img src="/images/sketch-tool.jpg" alt="3D Fashion Sketch Tool" />
+                <img src={d3} alt="3D Fashion Sketch Tool" />
               </ToolImage>
               <ToolContent>
                 <ToolIcon>
@@ -82,18 +87,18 @@ const DesignToolsPage = () => {
               </ToolContent>
             </ToolItem>
 
-            {/* AI Outfit Suggestions */}
+            {/* Outfit Suggestions */}
             <ToolItem>
               <ToolImage>
-                <img src="/images/ai-suggestions.jpg" alt="AI Outfit Suggestions" />
+                <img src={suggestion}alt="Outfit Suggestions" />
               </ToolImage>
               <ToolContent>
                 <ToolIcon>
                   <FiZap />
                 </ToolIcon>
-                <h2>AI Outfit Suggestions</h2>
+                <h2>Outfit Suggestions</h2>
                 <p>
-                  Our AI suggests outfit combinations based on user preferences, body type, occasion, and current fashion trends.
+                  Our system suggests outfit combinations based on user preferences, body type, occasion, and current fashion trends.
                 </p>
                 <FeatureList>
                   <li>
@@ -106,8 +111,8 @@ const DesignToolsPage = () => {
                     <FiArrowRight /> Occasion-specific outfits
                   </li>
                 </FeatureList>
-                <Link to="/design-tools/ai-suggestions" className="btn btn-gold">
-                  Get AI Suggestions <FiArrowRight />
+                <Link to="/design-tools/outfit-suggestions" className="btn btn-gold">
+                  Get Outfit Suggestions <FiArrowRight />
                 </Link>
               </ToolContent>
             </ToolItem>
@@ -115,7 +120,7 @@ const DesignToolsPage = () => {
             {/* Custom Design Editor */}
             <ToolItem reverse>
               <ToolImage>
-                <img src="/images/custom-editor.jpg" alt="Custom Design Editor" />
+                <img src={edit} alt="Custom Design Editor" />
               </ToolImage>
               <ToolContent>
                 <ToolIcon>
@@ -171,10 +176,15 @@ const DesignToolsPage = () => {
 // Styled Components
 const PageContainer = styled.div`
   width: 100%;
+ linear-gradient(to right, rgba(242, 240, 235, 0.9), rgba(227, 223, 214, 0.7))
 `;
 
 const HeroSection = styled.section`
-  background: linear-gradient(to right, rgba(5, 5, 5, 0.9), rgba(5, 5, 5, 0.7)), url('/images/design-tools-hero.jpg');
+   background: linear-gradient(
+      to right,
+      rgba(4, 5, 7, 0.7), /* Increased opacity of the overlay */
+      rgba(223, 223, 224, 0.5)
+    ),url(${backgroundImage});
   background-size: cover;
   background-position: center;
   color: white;
