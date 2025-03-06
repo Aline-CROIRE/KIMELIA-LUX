@@ -2,80 +2,107 @@ import React from 'react';
 import { Link } from 'react-router-dom';
 import styled from 'styled-components';
 import { FiShoppingBag, FiTag, FiFilter, FiSearch, FiArrowRight } from 'react-icons/fi';
-
+import banner from '../assets/images/mrkbg.webp'
+import elegant from "../assets/images/elegant.jpg"
+import suit from "../assets/images/suit.jpg"
+import summer from "../assets/images/summer.jpg"
+import sweater from "../assets/images/sweater.jpg";
+import scaf from "../assets/images/scaf.jpg";
+import collect from '../assets/images/collect.jpg';
+import wedding from '../assets/images/wedding.jpg';
+import jacket from '../assets/images/Jacket.jpg'
+import KIM from '../assets/images/kim1.png';
+import d1 from '../assets/images/hy8.jpg';
+import d2 from '../assets/images/hy4.jpg';
 // Sample product data
 const products = [
   {
     id: 1,
     name: "Elegant Evening Gown",
-    designer: "Aline Couture",
+    designer: "KIM Couture",
     price: 299.99,
-    image: "/images/products/evening-gown.jpg",
+    image:elegant,
     category: "Dresses",
     isCustom: false,
+    imageSrcSet: `${elegant} 300w, ${elegant} 768w, ${elegant} 1200w`, // Example responsive images
+    imageSizes: "(max-width: 300px) 100vw, (max-width: 768px) 50vw, 33.3vw"
   },
   {
     id: 2,
     name: "Tailored Business Suit",
     designer: "Modern Tailor",
     price: 399.99,
-    image: "/images/products/business-suit.jpg",
+    image: suit,
     category: "Suits",
     isCustom: true,
+    imageSrcSet: `${suit} 300w, ${suit} 768w, ${suit} 1200w`, // Example responsive images
+    imageSizes: "(max-width: 300px) 100vw, (max-width: 768px) 50vw, 33.3vw"
   },
   {
     id: 3,
     name: "Summer Collection Blouse",
     designer: "Fresh Designs",
     price: 89.99,
-    image: "/images/products/summer-blouse.jpg",
+    image: summer,
     category: "Tops",
     isCustom: false,
+    imageSrcSet: `${summer} 300w, ${summer} 768w, ${summer} 1200w`, // Example responsive images
+    imageSizes: "(max-width: 300px) 100vw, (max-width: 768px) 50vw, 33.3vw"
   },
   {
     id: 4,
     name: "Handcrafted Leather Jacket",
     designer: "Artisan Leathers",
     price: 499.99,
-    image: "/images/products/leather-jacket.jpg",
+    image: jacket,
     category: "Outerwear",
     isCustom: true,
+    imageSrcSet: `${jacket} 300w, ${jacket} 768w, ${jacket} 1200w`, // Example responsive images
+    imageSizes: "(max-width: 300px) 100vw, (max-width: 768px) 50vw, 33.3vw"
   },
   {
     id: 5,
     name: "Casual Denim Collection",
     designer: "Urban Style",
     price: 129.99,
-    image: "/images/products/denim-collection.jpg",
+    image: collect,
     category: "Jeans",
     isCustom: false,
+    imageSrcSet: `${collect} 300w, ${collect} 768w, ${collect} 1200w`, // Example responsive images
+    imageSizes: "(max-width: 300px) 100vw, (max-width: 768px) 50vw, 33.3vw"
   },
   {
     id: 6,
     name: "Silk Evening Scarf",
     designer: "Luxury Accessories",
     price: 79.99,
-    image: "/images/products/silk-scarf.jpg",
+    image:scaf,
     category: "Accessories",
     isCustom: false,
+    imageSrcSet: `${scaf} 300w, ${scaf} 768w, ${scaf} 1200w`, // Example responsive images
+    imageSizes: "(max-width: 300px) 100vw, (max-width: 768px) 50vw, 33.3vw"
   },
   {
     id: 7,
     name: "Custom Wedding Dress",
     designer: "Bridal Dreams",
     price: 1299.99,
-    image: "/images/products/wedding-dress.jpg",
+    image: wedding,
     category: "Wedding",
     isCustom: true,
+    imageSrcSet: `${wedding} 300w, ${wedding} 768w, ${wedding} 1200w`, // Example responsive images
+    imageSizes: "(max-width: 300px) 100vw, (max-width: 768px) 50vw, 33.3vw"
   },
   {
     id: 8,
     name: "Handmade Wool Sweater",
     designer: "Cozy Knits",
     price: 149.99,
-    image: "/images/products/wool-sweater.jpg",
+    image: sweater,
     category: "Knitwear",
     isCustom: true,
+     imageSrcSet: `${sweater} 300w, ${sweater} 768w, ${sweater} 1200w`, // Example responsive images
+    imageSizes: "(max-width: 300px) 100vw, (max-width: 768px) 50vw, 33.3vw"
   },
 ];
 
@@ -241,7 +268,12 @@ const MarketplacePage = () => {
                 {products.map((product) => (
                   <ProductCard key={product.id}>
                     <ProductImage>
-                      <img src={product.image || "/placeholder.svg"} alt={product.name} />
+                      <img
+                        src={product.image || "/placeholder.svg"}
+                        alt={product.name}
+                        srcSet={product.imageSrcSet}  // Add srcset
+                        sizes={product.imageSizes}    // Add sizes
+                      />
                       {product.isCustom && (
                         <CustomBadge>Custom Design</CustomBadge>
                       )}
@@ -282,15 +314,15 @@ const MarketplacePage = () => {
           <DesignerGrid>
             <DesignerCard>
               <DesignerImage>
-                <img src="/images/designers/designer-1.jpg" alt="Designer Portrait" />
+                <img src={KIM} alt="Designer Portrait" />
                 <DesignerOverlay>
-                  <h3>Aline Couture</h3>
+                  <h3>KIM Couture</h3>
                   <p>Evening Wear Specialist</p>
                 </DesignerOverlay>
               </DesignerImage>
               <DesignerInfo>
                 <p>
-                  Specializing in elegant evening wear with a modern twist, Aline's designs have been featured in major fashion events.
+                  Specializing in elegant evening wear with a modern twist, KIM's designs have been featured in major fashion events.
                 </p>
                 <Link to="/marketplace/designers/aline-couture" className="btn btn-outline btn-sm">
                   View Collection <FiArrowRight />
@@ -300,7 +332,7 @@ const MarketplacePage = () => {
             
             <DesignerCard>
               <DesignerImage>
-                <img src="/images/designers/designer-2.jpg" alt="Designer Portrait" />
+                <img src={d1} alt="Designer Portrait" />
                 <DesignerOverlay>
                   <h3>Modern Tailor</h3>
                   <p>Bespoke Suits & Formal Wear</p>
@@ -318,7 +350,7 @@ const MarketplacePage = () => {
             
             <DesignerCard>
               <DesignerImage>
-                <img src="/images/designers/designer-3.jpg" alt="Designer Portrait" />
+                <img src={d2}alt="Designer Portrait" />
                 <DesignerOverlay>
                   <h3>Fresh Designs</h3>
                   <p>Contemporary Casual Wear</p>
@@ -372,7 +404,7 @@ const PageContainer = styled.div`
 `;
 
 const HeroSection = styled.section`
-  background: linear-gradient(to right, rgba(5, 5, 5, 0.9), rgba(5, 5, 5, 0.7)), url('/images/marketplace-hero.jpg');
+  background: linear-gradient(to right, rgba(5, 5, 5, 0.4), rgba(12, 0, 0, 0.4)), url(${banner});
   background-size: cover;
   background-position: center;
   color: white;
@@ -607,17 +639,18 @@ const ProductImage = styled.div`
   position: relative;
   aspect-ratio: 3/4;
   overflow: hidden;
+    image-rendering: optimizeQuality; /* or try crisp-edges */
 
   img {
     width: 100%;
     height: 100%;
     object-fit: cover;
-    transition: transform 0.3s ease;
+      /*transition: transform 0.3s ease;   Remove the image transition*/
   }
 
-  ${ProductCard}:hover & img {
+  /*${ProductCard}:hover & img {  Remove the hover scale
     transform: scale(1.05);
-  }
+  }*/
 `;
 
 const CustomBadge = styled.div`
