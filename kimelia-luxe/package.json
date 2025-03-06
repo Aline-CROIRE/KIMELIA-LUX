@@ -24,12 +24,13 @@
     "three": "^0.174.0",
     "web-vitals": "^2.1.4"
   },
-"scripts": {
-  "dev": "vite",
-  "build": "vite build",
-  "preview": "vite preview"
-}
-,
+  "scripts": {
+    "dev": "vite",
+    "build": "vite build",
+    "preview": "vite preview",
+    "start": "serve dist -s",  // Add start script
+    "vercel-build": "vite build"  // Add vercel-build script
+  },
   "eslintConfig": {
     "extends": [
       "react-app",
@@ -47,5 +48,9 @@
       "last 1 firefox version",
       "last 1 safari version"
     ]
+  },
+  "devDependencies": {
+    "vite": "^5.0.0",
+    "serve": "^14.2.1"
   }
 }
