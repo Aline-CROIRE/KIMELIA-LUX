@@ -501,7 +501,7 @@ const HomePage = () => {
               See the Collections <FiArrowRight />
             </Button>
           </EcommerceInfo>
-          <EcommerceImage>
+          <EcommerceImage>git
             <img src={market} alt="E-commerce Marketplace" />
             <img src={custm} alt="Custom Design" className="accent-image" />
           </EcommerceImage>

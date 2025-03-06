@@ -1,7 +1,7 @@
 import React from "react";
 import styled from "styled-components";
 import { FaGem, FaGlobe, FaStar, FaShippingFast, FaHeadphonesAlt, FaLock, FaAward, FaArrowRight, FaReact, FaNodeJs, FaDatabase, FaBrain } from "react-icons/fa";
-import banner from '../assets/images/banner1.webp';
+import banner from '../assets/images/abanner.webp';
 import craft from '../assets/images/craft.webp';
 import kim from '../assets/images/kim2.png';
 import future from '../assets/images/future.webp';
@@ -18,11 +18,15 @@ const PageContainer = styled.div`
 // Hero Section
 const HeroSection = styled.section`
   position: relative;
-  padding: 150px 20px; /* Increased padding for a larger hero area */
+  padding: 150px 20px;
   overflow: hidden;
   color: white;
   text-align: center;
-  background: linear-gradient(to bottom, rgba(26, 26, 46, 0.7), rgba(22, 33, 62, 0.7)); /* Adjusted overlay opacity */
+
+  /* Option 1: Banner as the primary background (before) */
+  background-image: url(${banner}); /* Set banner as the primary background */
+  background-size: cover;
+  background-position: center;
 
   &::before {
     content: '';
@@ -31,24 +35,11 @@ const HeroSection = styled.section`
     left: 0;
     right: 0;
     bottom: 0;
-    background: linear-gradient(to right, #1a1a2e, #16213e);
-    z-index: -2;
+    background: linear-gradient(to right, rgba(6, 6, 12, 0.7), rgba(22, 33, 62, 0.7)); /* Add a darkening gradient overlay */
+    z-index: -1;
+    opacity: 0.5; /* Adjusted opacity to help text stand out */
   }
 
-  &::after {
-    content: '';
-    position: absolute;
-    top: 0;
-    left: 0;
-    right: 0;
-    bottom: 0;
-    background-image: url(${banner});
-    background-size: cover;
-    background-position: center;
-    opacity: 0.9; /* Adjusted banner opacity */
-    mix-blend-mode: normal; /* Changed blend mode */
-    z-index: -1;
-  }
 `;
 
 const HeroContent = styled.div`
@@ -59,23 +50,24 @@ const HeroContent = styled.div`
 `;
 
 const HeroTitle = styled.h1`
-  font-size: 4.5rem; /* Increased font size for a more prominent title */
-  font-weight: 900; /* Increased font weight for a bolder title */
+  font-size: 4.5rem;
+  font-weight: 900;
   margin-bottom: 20px;
   background: linear-gradient(to right, #d4af37, #f5e7a3);
   -webkit-background-clip: text;
   -webkit-text-fill-color: transparent;
   display: inline-block;
-  letter-spacing: 1.5px; /* Added letter spacing for visual appeal */
+  letter-spacing: 1.5px;
 `;
 
 const HeroSubtitle = styled.p`
-  font-size: 1.8rem; /* Increased font size for a more engaging subtitle */
+  font-size: 1.8rem;
   max-width: 800px;
   margin: 0 auto;
   color: #f0f0f0;
-  line-height: 1.9; /* Improved line height for readability */
+  line-height: 1.9;
   font-weight: 500;
+  text-shadow: 2px 2px 4px #000000; /* Add text shadow for better visibility */
 `;
 
 // Story Section
