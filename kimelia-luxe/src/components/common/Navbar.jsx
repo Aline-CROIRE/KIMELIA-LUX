@@ -2,9 +2,11 @@
 import React, { useState } from 'react';
 import { Link } from 'react-router-dom';
 import styled from 'styled-components';
-import { FiMenu, FiX, FiShoppingBag, FiUser } from 'react-icons/fi';
-
+import { FiMenu, FiX, FiUser, FiHeart, FiShoppingBag, FiPhone, FiSun, FiMoon } from 'react-icons/fi';
 import logo from '../../assets/images/logo.png';
+import PropTypes from 'prop-types';
+import LoginPage from '../../pages/LoginPage';
+import SignupPage from '../../pages/SingnupPage'; // Corrected the import
 
 const NavbarContainer = styled.header`
   position: fixed;
@@ -33,13 +35,13 @@ const LogoContainer = styled(Link)`
 `;
 
 const LogoImage = styled.img`
-  height: 50px; /* Increased height */
+  height: 50px;
   margin-right: 10px;
 `;
 
 const LogoText = styled.span`
   font-family: ${props => props.theme.fonts.heading};
-  font-size: 1.7rem; /* Increased font size */
+  font-size: 1.7rem;
   font-weight: 700;
   background: ${props => props.theme.gradients.goldGradient};
   -webkit-background-clip: text;
@@ -52,7 +54,7 @@ const NavLinks = styled.nav`
   gap: 2rem;
 
   @media (max-width: ${props => props.theme.breakpoints.tablet}) {
-    display: none;
+    display: none; /* Hide on mobile */
   }
 `;
 
@@ -72,6 +74,7 @@ const NavActions = styled.div`
   display: flex;
   align-items: center;
   gap: 1rem;
+  position: relative;
 `;
 
 const IconButton = styled.button`
@@ -87,65 +90,146 @@ const IconButton = styled.button`
   }
 `;
 
-const MobileMenuButton = styled(IconButton)`
-  display: none;
+const UserMenu = styled.div`
+  position: absolute;
+  top: 40px;
+  right: 0;
+  background: white;
+  border-radius: 8px;
+  box-shadow: 0 4px 10px rgba(0, 0, 0, 0.2);
+  display: ${props => (props.isOpen ? 'block' : 'none')};
+  min-width: 150px;
+  padding: 0.5rem 0;
+  z-index: 1001;
 
-  @media (max-width: ${props => props.theme.breakpoints.tablet}) {
+  button {  // Changed from Link to button
     display: block;
+    padding: 10px;
+    text-align: center;
+    color: ${props => props.theme.colors.black.main};
+    text-decoration: none;
+    font-size: 0.9rem;
+    transition: background 0.3s ease;
+    background: none;
+    border: none;
+    cursor: pointer;
+
+    &:hover {
+      background: ${props => props.theme.colors.gray.light};
+    }
   }
 `;
 
-const MobileMenu = styled.div`
+const MobileMenuButton = styled.button`
+  display: none;
+  background: none;
+  border: none;
+  font-size: 1.5rem;
+  color: ${props => props.theme.colors.black.main};
+  cursor: pointer;
+
+  @media (max-width: ${props => props.theme.breakpoints.tablet}) {
+    display: block; /* Show on mobile */
+  }
+`;
+
+const MobileMenu = styled.nav`
+  display: ${props => (props.isOpen ? 'flex' : 'none')};
+  flex-direction: column;
+  background: white;
+  position: absolute;
+  top: 60px;
+  right: 0;
+  width: 200px;
+  box-shadow: 0 4px 10px rgba(0, 0, 0, 0.2);
+  z-index: 1000;
+
+  a {
+    padding: 10px;
+    text-decoration: none;
+    color: ${props => props.theme.colors.black.main};
+    transition: background 0.3s ease;
+
+    &:hover {
+      background: ${props => props.theme.colors.gray.light};
+    }
+  }
+`;
+
+const Overlay = styled.div`
   position: fixed;
   top: 0;
   left: 0;
-  right: 0;
-  bottom: 0;
-  background: ${props => props.theme.colors.white};
-  z-index: 1001;
+  width: 100%;
+  height: 100vh;
+  background: rgba(0, 0, 0, 0.5);
   display: flex;
-  flex-direction: column;
-  padding: 2rem;
-  transform: ${props => (props.isOpen ? 'translateX(0)' : 'translateX(100%)')};
-  transition: transform 0.3s ease;
-`;
-
-const MobileMenuHeader = styled.div`
-  display: flex;
-  justify-content: space-between;
+  justify-content: center;
   align-items: center;
-  margin-bottom: 2rem;
+  z-index: 1002;
 `;
 
-const MobileNavLinks = styled.nav`
-  display: flex;
-  flex-direction: column;
-  gap: 1.5rem;
+const ModalContent = styled.div`
+  background: white;
+  padding: 2rem;
+  border-radius: 8px;
+  box-shadow: 0 4px 10px rgba(0, 0, 0, 0.2);
+  width: 90%;
+  max-width: 500px; /* Ensure it matches LoginPage/SignupPage max-width */
+  max-height: 80vh;
+  overflow-y: auto;
+  position: relative;
 `;
 
-const MobileNavLink = styled(Link)`
-  font-size: 1.2rem;
+const CloseButton = styled.button`
+  background: none;
+  border: none;
+  font-size: 1.5rem;
   color: ${props => props.theme.colors.black.main};
-  text-decoration: none;
-  transition: color 0.3s ease;
+  cursor: pointer;
+  position: absolute;
+  top: 10px;
+  right: 10px;
+  z-index: 10;
 
   &:hover {
     color: ${props => props.theme.colors.gold.main};
   }
 `;
 
-const Navbar = () => {
-  const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
 
-  const toggleMobileMenu = () => {
-    setIsMobileMenuOpen(!isMobileMenuOpen);
+const Navbar = ({ isDarkMode, toggleDarkMode }) => {
+  const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
+  const [isUserMenuOpen, setIsUserMenuOpen] = useState(false);
+  const [showModal, setShowModal] = useState(null); // 'login' or 'signup' or null
+
+  const toggleMobileMenu = () => setIsMobileMenuOpen(prev => !prev);
+  const toggleUserMenu = () => setIsUserMenuOpen(prev => !prev);
+
+  const openLoginModal = (e) => {
+    e.preventDefault();
+    setIsUserMenuOpen(false);
+    setShowModal('login');
   };
+
+  const openSignupModal = (e) => {
+    e.preventDefault();
+    setIsUserMenuOpen(false);
+    setShowModal('signup');
+  };
+
+  const closeModal = () => setShowModal(null);
+
+  // Switching between login and signup
+  const switchToSignup = () => setShowModal('signup');
+  const switchToLogin = () => setShowModal('login');
+
 
   return (
     <NavbarContainer>
       <NavContent>
         <LogoContainer to="/">
-          <LogoImage src={logo} alt="logo" />
+          <LogoImage src={logo} alt="KIMELIA LUXE logo" />
           <LogoText>KIMELIA LUXE</LogoText>
         </LogoContainer>
 
@@ -157,37 +241,71 @@ const Navbar = () => {
         </NavLinks>
 
         <NavActions>
+          <IconButton aria-label="User Account" onClick={toggleUserMenu}>
+            <FiUser />
+          </IconButton>
+          <UserMenu isOpen={isUserMenuOpen}>
+            <button onClick={openLoginModal}>Login</button>
+            <button onClick={openSignupModal}>Register</button>
+          </UserMenu>
+
+          <IconButton aria-label="Toggle Dark Mode" onClick={toggleDarkMode}>
+            {isDarkMode ? <FiSun /> : <FiMoon />}
+          </IconButton>
+
+          <IconButton aria-label="Wishlist">
+            <FiHeart />
+          </IconButton>
           <IconButton aria-label="Shopping Bag">
             <FiShoppingBag />
           </IconButton>
-          <IconButton aria-label="User Account">
-            <FiUser />
-          </IconButton>
+
           <MobileMenuButton onClick={toggleMobileMenu} aria-label="Menu">
-            <FiMenu />
+            {isMobileMenuOpen ? <FiX /> : <FiMenu />}
           </MobileMenuButton>
         </NavActions>
       </NavContent>
 
       <MobileMenu isOpen={isMobileMenuOpen}>
-        <MobileMenuHeader>
-          <LogoContainer to="/" onClick={toggleMobileMenu}>
-            <LogoText>KIMELIA LUXE</LogoText>
-          </LogoContainer>
-          <IconButton onClick={toggleMobileMenu} aria-label="Close Menu">
-            <FiX />
-          </IconButton>
-        </MobileMenuHeader>
-
-        <MobileNavLinks>
-          <MobileNavLink to="/" onClick={toggleMobileMenu}>Home</MobileNavLink>
-          <MobileNavLink to="/design-tools" onClick={toggleMobileMenu}>Design Tools</MobileNavLink>
-          <MobileNavLink to="/marketplace" onClick={toggleMobileMenu}>Marketplace</MobileNavLink>
-          <MobileNavLink to="/about" onClick={toggleMobileMenu}>About</MobileNavLink>
-        </MobileNavLinks>
+        <NavLink to="/" onClick={toggleMobileMenu}>Home</NavLink>
+        <NavLink to="/design-tools" onClick={toggleMobileMenu}>Design Tools</NavLink>
+        <NavLink to="/marketplace" onClick={toggleMobileMenu}>Marketplace</NavLink>
+        <NavLink to="/about" onClick={toggleMobileMenu}>About</NavLink>
+        <NavLink to="/login" onClick={toggleMobileMenu}>Login</NavLink>
+        <NavLink to="/signup" onClick={toggleMobileMenu}>Register</NavLink>
       </MobileMenu>
+
+      {/* Login Overlay */}
+      {showModal === 'login' && (
+        <Overlay>
+          <ModalContent>
+            <CloseButton onClick={closeModal} aria-label="Close">
+              <FiX />
+            </CloseButton>
+            <LoginPage onClose={closeModal} onSwitchToSignup={switchToSignup} />
+          </ModalContent>
+        </Overlay>
+      )}
+
+      {/* Signup Overlay */}
+      {showModal === 'signup' && (
+        <Overlay>
+          <ModalContent>
+            <CloseButton onClick={closeModal} aria-label="Close">
+              <FiX />
+            </CloseButton>
+            <SignupPage onClose={closeModal} onSwitchToLogin={switchToLogin} />
+          </ModalContent>
+        </Overlay>
+      )}
     </NavbarContainer>
   );
+};
+
+// Prop Types for better type-checking
+Navbar.propTypes = {
+  isDarkMode: PropTypes.bool.isRequired,
+  toggleDarkMode: PropTypes.func.isRequired,
 };
 
 export default Navbar;
