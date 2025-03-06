@@ -4,6 +4,8 @@ import { Link } from 'react-router-dom';
 import styled from 'styled-components';
 import { FiMenu, FiX, FiShoppingBag, FiUser } from 'react-icons/fi';
 
+import logo from '../../assets/images/logo.png';
+
 const NavbarContainer = styled.header`
   position: fixed;
   top: 0;
@@ -24,23 +26,31 @@ const NavContent = styled.div`
   margin: 0 auto;
 `;
 
-const Logo = styled.div`
+const LogoContainer = styled(Link)`
+  display: flex;
+  align-items: center;
+  text-decoration: none;
+`;
+
+const LogoImage = styled.img`
+  height: 50px; /* Increased height */
+  margin-right: 10px;
+`;
+
+const LogoText = styled.span`
   font-family: ${props => props.theme.fonts.heading};
-  font-size: 1.5rem;
+  font-size: 1.7rem; /* Increased font size */
   font-weight: 700;
-  
-  span {
-    background: ${props => props.theme.gradients.goldGradient};
-    -webkit-background-clip: text;
-    -webkit-text-fill-color: transparent;
-    background-clip: text;
-  }
+  background: ${props => props.theme.gradients.goldGradient};
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
 `;
 
 const NavLinks = styled.nav`
   display: flex;
   gap: 2rem;
-  
+
   @media (max-width: ${props => props.theme.breakpoints.tablet}) {
     display: none;
   }
@@ -51,7 +61,8 @@ const NavLink = styled(Link)`
   font-weight: 500;
   color: ${props => props.theme.colors.black.main};
   transition: color 0.3s ease;
-  
+  text-decoration: none;
+
   &:hover {
     color: ${props => props.theme.colors.gold.main};
   }
@@ -69,7 +80,8 @@ const IconButton = styled.button`
   font-size: 1.2rem;
   color: ${props => props.theme.colors.black.main};
   transition: color 0.3s ease;
-  
+  cursor: pointer;
+
   &:hover {
     color: ${props => props.theme.colors.gold.main};
   }
@@ -77,7 +89,7 @@ const IconButton = styled.button`
 
 const MobileMenuButton = styled(IconButton)`
   display: none;
-  
+
   @media (max-width: ${props => props.theme.breakpoints.tablet}) {
     display: block;
   }
@@ -94,7 +106,7 @@ const MobileMenu = styled.div`
   display: flex;
   flex-direction: column;
   padding: 2rem;
-  transform: ${props => props.isOpen ? 'translateX(0)' : 'translateX(100%)'};
+  transform: ${props => (props.isOpen ? 'translateX(0)' : 'translateX(100%)')};
   transition: transform 0.3s ease;
 `;
 
@@ -111,33 +123,39 @@ const MobileNavLinks = styled.nav`
   gap: 1.5rem;
 `;
 
-const MobileNavLink = styled(NavLink)`
+const MobileNavLink = styled(Link)`
   font-size: 1.2rem;
+  color: ${props => props.theme.colors.black.main};
+  text-decoration: none;
+  transition: color 0.3s ease;
+
+  &:hover {
+    color: ${props => props.theme.colors.gold.main};
+  }
 `;
 
 const Navbar = () => {
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
-  
+
   const toggleMobileMenu = () => {
     setIsMobileMenuOpen(!isMobileMenuOpen);
   };
-  
+
   return (
     <NavbarContainer>
       <NavContent>
-        <Logo>
-          <Link to="/">
-            <span>KIMELIA LUXE</span>
-          </Link>
-        </Logo>
-        
+        <LogoContainer to="/">
+          <LogoImage src={logo} alt="logo" />
+          <LogoText>KIMELIA LUXE</LogoText>
+        </LogoContainer>
+
         <NavLinks>
           <NavLink to="/">Home</NavLink>
           <NavLink to="/design-tools">Design Tools</NavLink>
           <NavLink to="/marketplace">Marketplace</NavLink>
           <NavLink to="/about">About</NavLink>
         </NavLinks>
-        
+
         <NavActions>
           <IconButton aria-label="Shopping Bag">
             <FiShoppingBag />
@@ -150,19 +168,17 @@ const Navbar = () => {
           </MobileMenuButton>
         </NavActions>
       </NavContent>
-      
+
       <MobileMenu isOpen={isMobileMenuOpen}>
         <MobileMenuHeader>
-          <Logo>
-            <Link to="/">
-              <span>KIMELIA LUXE</span>
-            </Link>
-          </Logo>
+          <LogoContainer to="/" onClick={toggleMobileMenu}>
+            <LogoText>KIMELIA LUXE</LogoText>
+          </LogoContainer>
           <IconButton onClick={toggleMobileMenu} aria-label="Close Menu">
             <FiX />
           </IconButton>
         </MobileMenuHeader>
-        
+
         <MobileNavLinks>
           <MobileNavLink to="/" onClick={toggleMobileMenu}>Home</MobileNavLink>
           <MobileNavLink to="/design-tools" onClick={toggleMobileMenu}>Design Tools</MobileNavLink>
