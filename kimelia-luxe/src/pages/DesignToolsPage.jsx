@@ -180,7 +180,7 @@ const PageContainer = styled.div`
 `;
 
 const HeroSection = styled.section`
-   background: linear-gradient(
+  background: linear-gradient(
       to right,
       rgba(4, 5, 7, 0.7), /* Increased opacity of the overlay */
       rgba(223, 223, 224, 0.5)
@@ -188,7 +188,7 @@ const HeroSection = styled.section`
   background-size: cover;
   background-position: center;
   color: white;
-  padding: 6rem 0;
+  padding: 8rem 0; /* Increased padding */
   text-align: center;
 `;
 
@@ -197,8 +197,8 @@ const HeroContent = styled.div`
   margin: 0 auto;
 
   h1 {
-    font-size: 3.5rem;
-    margin-bottom: 1.5rem;
+    font-size: 4rem; /* Increased font size */
+    margin-bottom: 2rem; /* Increased margin */
     background: linear-gradient(135deg, var(--gold-primary) 0%, var(--gold-light) 50%, var(--gold-primary) 100%);
     -webkit-background-clip: text;
     -webkit-text-fill-color: transparent;
@@ -206,8 +206,8 @@ const HeroContent = styled.div`
   }
 
   p {
-    font-size: 1.2rem;
-    line-height: 1.6;
+    font-size: 1.3rem; /* Increased font size */
+    line-height: 1.7; /* Increased line height */
   }
 `;
 

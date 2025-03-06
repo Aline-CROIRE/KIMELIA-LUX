@@ -34,6 +34,20 @@ const MainContent = styled.main`
     background-color: ${({theme, isDarkMode}) => isDarkMode ? theme.colors.black.main : theme.colors.white};
     color: ${({theme, isDarkMode}) => isDarkMode ? theme.colors.white : theme.colors.black.main};
     transition: background-color 0.3s ease, color 0.3s ease; /* Smooth transition */
+    position: relative; /* Ensure modals are positioned relative to MainContent */
+`;
+
+const ModalOverlay = styled.div`
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background-color: rgba(0, 0, 0, 0.5); /* Semi-transparent background */
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    z-index: 1000; /* Ensure it's on top of everything */
 `;
 
 const AppContent = () => {
@@ -73,22 +87,18 @@ const AppContent = () => {
 
     const openLoginModal = () => {
         setShowLogin(true);
-        navigate('/login');
     };
 
     const closeLoginModal = () => {
         setShowLogin(false);
-        navigate(location.pathname);
     };
 
     const openSignupModal = () => {
         setShowSignup(true);
-        navigate('/signup');
     };
 
     const closeSignupModal = () => {
         setShowSignup(false);
-        navigate(location.pathname);
     };
 
     return (
@@ -111,14 +121,21 @@ const AppContent = () => {
                     <Route path="/design-tools/custom-editor" element={<CustomEditorPage/>}/>
                     <Route path="/marketplace" element={<MarketplacePage/>}/>
                     <Route path="/about" element={<AboutPage/>}/>
-
-                    <Route path="/login" element={LoginPage}/>
-                    <Route path="/signup" element={SignupPage}/>
+                    
+             
                 </Routes>
+                {showLogin && (
+                    <ModalOverlay>
+                        <LoginPage closeModal={closeLoginModal}/>
+                    </ModalOverlay>
+                )}
+                {showSignup && (
+                    <ModalOverlay>
+                        <SignupPage closeModal={closeSignupModal}/>
+                    </ModalOverlay>
+                )}
             </MainContent>
-            {showLogin && <LoginPage closeModal={closeLoginModal}/>}
-            {showSignup && <SignupPage closeModal={closeSignupModal}/>}
-            <Footer/>git
+            <Footer/>
         </>
     );
 };

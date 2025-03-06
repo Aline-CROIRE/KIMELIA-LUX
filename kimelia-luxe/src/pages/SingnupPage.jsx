@@ -1,4 +1,3 @@
-// src/pages/SignupPage.jsx
 import React, { useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import styled from 'styled-components';
@@ -107,138 +106,140 @@ const SignupPage = ({ onClose, onSwitchToLogin }) => {
     };
 
     return (
-        <Overlay onClick={onClose}>
-            <ModalContent onClick={(e) => e.stopPropagation()}>
-                <CloseButton onClick={onClose} aria-label="Close">×</CloseButton>
+        <Overlay>
+            <ModalWrapper>
+                <ModalContent>
+                    <CloseButton onClick={onClose} aria-label="Close">×</CloseButton>
 
-                <SignupHeader>
-                    <h1>Create Account</h1>
-                    <p>Join Kimelia Luxe for exclusive access</p>
-                </SignupHeader>
+                    <SignupHeader>
+                        <h1>Create Account</h1>
+                        <p>Join Kimelia Luxe for exclusive access</p>
+                    </SignupHeader>
 
-                {error && <ErrorMessage>{error}</ErrorMessage>}
+                    {error && <ErrorMessage>{error}</ErrorMessage>}
 
-                <FormWrapper onSubmit={handleSubmit}>
-                    <NameFieldsContainer>
+                    <FormWrapper onSubmit={handleSubmit}>
+                        <NameFieldsContainer>
+                            <FormGroup>
+                                <Label htmlFor="firstName">First Name</Label>
+                                <Input
+                                    type="text"
+                                    id="firstName"
+                                    name="firstName"
+                                    value={formData.firstName}
+                                    onChange={handleChange}
+                                    required
+                                    placeholder="Enter first name"
+                                />
+                            </FormGroup>
+
+                            <FormGroup>
+                                <Label htmlFor="lastName">Last Name</Label>
+                                <Input
+                                    type="text"
+                                    id="lastName"
+                                    name="lastName"
+                                    value={formData.lastName}
+                                    onChange={handleChange}
+                                    required
+                                    placeholder="Enter last name"
+                                />
+                            </FormGroup>
+                        </NameFieldsContainer>
+
                         <FormGroup>
-                            <Label htmlFor="firstName">First Name</Label>
+                            <Label htmlFor="email">Email</Label>
                             <Input
-                                type="text"
-                                id="firstName"
-                                name="firstName"
-                                value={formData.firstName}
+                                type="email"
+                                id="email"
+                                name="email"
+                                value={formData.email}
                                 onChange={handleChange}
                                 required
-                                placeholder="Enter first name"
+                                placeholder="Enter your email"
                             />
                         </FormGroup>
 
+                        <PasswordContainer>
+                            <FormGroup>
+                                <Label htmlFor="password">Password</Label>
+                                <PasswordInputWrapper>
+                                    <Input
+                                        type={showPassword ? "text" : "password"}
+                                        id="password"
+                                        name="password"
+                                        value={formData.password}
+                                        onChange={handleChange}
+                                        required
+                                        placeholder="Enter your password"
+                                    />
+                                    <PasswordToggle onClick={togglePasswordVisibility}>
+                                        <FontAwesomeIcon icon={showPassword ? faEyeSlash : faEye} />
+                                    </PasswordToggle>
+                                </PasswordInputWrapper>
+                            </FormGroup>
+                        </PasswordContainer>
+
+                        <PasswordContainer>
+                            <FormGroup>
+                                <Label htmlFor="confirmPassword">Confirm Password</Label>
+                                <PasswordInputWrapper>
+                                    <Input
+                                        type={showConfirmPassword ? "text" : "password"}
+                                        id="confirmPassword"
+                                        name="confirmPassword"
+                                        value={formData.confirmPassword}
+                                        onChange={handleChange}
+                                        required
+                                        placeholder="Confirm your password"
+                                    />
+                                    <PasswordToggle onClick={toggleConfirmPasswordVisibility}>
+                                        <FontAwesomeIcon icon={showConfirmPassword ? faEyeSlash : faEye} />
+                                    </PasswordToggle>
+                                </PasswordInputWrapper>
+                            </FormGroup>
+                        </PasswordContainer>
+
+
                         <FormGroup>
-                            <Label htmlFor="lastName">Last Name</Label>
-                            <Input
-                                type="text"
-                                id="lastName"
-                                name="lastName"
-                                value={formData.lastName}
+                            <Label>Select Your Role</Label>
+                            <RoleSelectionContainer>
+                                {['customer', 'designer', 'seller'].map(role => (
+                                    <RoleOption
+                                        key={role}
+                                        selected={formData.role === role}
+                                        onClick={() => setFormData({ ...formData, role })}
+                                    >
+                                        <RoleTitle>{role.charAt(0).toUpperCase() + role.slice(1)}</RoleTitle>
+                                    </RoleOption>
+                                ))}
+                            </RoleSelectionContainer>
+                        </FormGroup>
+
+                        <CheckboxGroup>
+                            <input
+                                type="checkbox"
+                                id="agreeTerms"
+                                name="agreeTerms"
+                                checked={formData.agreeTerms}
                                 onChange={handleChange}
-                                required
-                                placeholder="Enter last name"
                             />
-                        </FormGroup>
-                    </NameFieldsContainer>
+                            <label htmlFor="agreeTerms">
+                                I agree to the <TermsLink to="/terms">Terms</TermsLink> and{' '}
+                                <TermsLink to="/privacy">Privacy Policy</TermsLink>
+                            </label>
+                        </CheckboxGroup>
 
-                    <FormGroup>
-                        <Label htmlFor="email">Email</Label>
-                        <Input
-                            type="email"
-                            id="email"
-                            name="email"
-                            value={formData.email}
-                            onChange={handleChange}
-                            required
-                            placeholder="Enter your email"
-                        />
-                    </FormGroup>
+                        <SubmitButton type="submit">Create Account</SubmitButton>
+                    </FormWrapper>
 
-                    <PasswordContainer>
-                        <FormGroup>
-                            <Label htmlFor="password">Password</Label>
-                            <PasswordInputWrapper>
-                                <Input
-                                    type={showPassword ? "text" : "password"}
-                                    id="password"
-                                    name="password"
-                                    value={formData.password}
-                                    onChange={handleChange}
-                                    required
-                                    placeholder="Enter your password"
-                                />
-                                <PasswordToggle onClick={togglePasswordVisibility}>
-                                    <FontAwesomeIcon icon={showPassword ? faEyeSlash : faEye} />
-                                </PasswordToggle>
-                            </PasswordInputWrapper>
-                        </FormGroup>
-                    </PasswordContainer>
-
-                    <PasswordContainer>
-                        <FormGroup>
-                            <Label htmlFor="confirmPassword">Confirm Password</Label>
-                            <PasswordInputWrapper>
-                                <Input
-                                    type={showConfirmPassword ? "text" : "password"}
-                                    id="confirmPassword"
-                                    name="confirmPassword"
-                                    value={formData.confirmPassword}
-                                    onChange={handleChange}
-                                    required
-                                    placeholder="Confirm your password"
-                                />
-                                <PasswordToggle onClick={toggleConfirmPasswordVisibility}>
-                                    <FontAwesomeIcon icon={showConfirmPassword ? faEyeSlash : faEye} />
-                                </PasswordToggle>
-                            </PasswordInputWrapper>
-                        </FormGroup>
-                    </PasswordContainer>
-
-
-                    <FormGroup>
-                        <Label>Select Your Role</Label>
-                        <RoleSelectionContainer>
-                            {['customer', 'designer', 'seller'].map(role => (
-                                <RoleOption
-                                    key={role}
-                                    selected={formData.role === role}
-                                    onClick={() => setFormData({ ...formData, role })}
-                                >
-                                    <RoleTitle>{role.charAt(0).toUpperCase() + role.slice(1)}</RoleTitle>
-                                </RoleOption>
-                            ))}
-                        </RoleSelectionContainer>
-                    </FormGroup>
-
-                    <CheckboxGroup>
-                        <input
-                            type="checkbox"
-                            id="agreeTerms"
-                            name="agreeTerms"
-                            checked={formData.agreeTerms}
-                            onChange={handleChange}
-                        />
-                        <label htmlFor="agreeTerms">
-                            I agree to the <TermsLink to="/terms">Terms</TermsLink> and{' '}
-                            <TermsLink to="/privacy">Privacy Policy</TermsLink>
-                        </label>
-                    </CheckboxGroup>
-
-                    <SubmitButton type="submit">Create Account</SubmitButton>
-                </FormWrapper>
-
-                {/* Added Login Option */}
-                <LoginPrompt>
-                    Already have an account?{' '}
-                    <LoginLink onClick={onSwitchToLogin}>Log in</LoginLink>
-                </LoginPrompt>
-            </ModalContent>
+                    {/* Added Login Option */}
+                    <LoginPrompt>
+                        Already have an account?{' '}
+                        <LoginLink onClick={onSwitchToLogin}>Log in</LoginLink>
+                    </LoginPrompt>
+                </ModalContent>
+            </ModalWrapper>
         </Overlay>
     );
 };
