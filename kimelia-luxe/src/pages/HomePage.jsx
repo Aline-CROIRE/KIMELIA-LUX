@@ -364,13 +364,13 @@ const features = [
     icon: "FiPenTool",
     title: "3D Fashion Studio",
     description: "Unleash your inner designer! Create breathtaking 3D sketches, experiment with fabrics, and bring your visions to life.",
-    link: "/design-tools/3d-sketch"
+    link: "/design-tools/sketch-tool"
   },
   {
     icon: "FiZap",
     title: "Style Inspiration Engine",
     description: "Never run out of ideas! Get personalized outfit recommendations tailored to your unique style.",
-    link: "/design-tools/intelligent-suggestions"
+    link: "/design-tools/outfit-suggestions"
   },
   {
     icon: "FiEdit",

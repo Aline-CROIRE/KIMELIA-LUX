@@ -25,6 +25,10 @@ import SketchToolPage from './pages/design-tools/SketchToolPage';
 import AiSuggestionsPage from './pages/design-tools/AiSuggestionsPage';
 import CustomEditorPage from './pages/design-tools/CustomEditorPage';
 import styled from 'styled-components';
+import CustomerDashboard from './pages/CustomerDashboard.jsx';
+import ProfilePage from './pages/ProfilePage.jsx';
+import ProductDetailPage from './pages/design-tools/ProductDetailpage.jsx';
+import ContactPage from './pages/ContactPage.jsx';
 
 // Styled component to apply dark mode styles to the main content
 const MainContent = styled.main`
@@ -116,12 +120,15 @@ const AppContent = () => {
                     <Route path="/" element={<HomePage/>}/>
                     <Route path="/design-tools" element={<DesignToolsPage/>}/>
                     <Route path="/design-tools/virtual-fitting" element={<VirtualFittingPage/>}/>
-                    <Route path="/design-tools/3d-sketch" element={<SketchToolPage/>}/>
-                    <Route path="/design-tools/ai-suggestions" element={<AiSuggestionsPage/>}/>
+                    <Route path="/design-tools/sketch-tool" element={<SketchToolPage/>}/>
+                    <Route path="/design-tools/outfit-suggestions" element={<AiSuggestionsPage/>}/>
                     <Route path="/design-tools/custom-editor" element={<CustomEditorPage/>}/>
                     <Route path="/marketplace" element={<MarketplacePage/>}/>
                     <Route path="/about" element={<AboutPage/>}/>
-                    
+                    <Route path="/cdashboard" element={<CustomerDashboard/>}/>
+                    <Route path='/profile' element={<ProfilePage/>}/>
+                    <Route path='/detail' element={<ProductDetailPage/>}/>
+                    <Route path='/contact' element={<ContactPage/>}/>
              
                 </Routes>
                 {showLogin && (
