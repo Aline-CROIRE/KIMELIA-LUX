@@ -1,5 +1,5 @@
 // src/pages/HomePage.jsx
-import React from 'react'; // Removed useState, useEffect, useRef
+import React, { useState } from 'react'; // Import useState
 import { Link } from 'react-router-dom';
 import { FiArrowRight } from 'react-icons/fi';
 import { FiCamera, FiPenTool, FiZap, FiEdit, FiShoppingBag, FiUser, FiTruck, FiCreditCard } from "react-icons/fi";
@@ -7,6 +7,7 @@ import { FiCamera, FiPenTool, FiZap, FiEdit, FiShoppingBag, FiUser, FiTruck, FiC
 import styled, { keyframes } from 'styled-components';
 import { motion } from 'framer-motion';
 import Button from '../components/common/Button';
+import SignupPage from './SingnupPage'
 
 import image1 from '../assets/images/bgbanner.webp'; 
 
@@ -405,6 +406,15 @@ const ecommerceFeatures = [
 ];
 
 const HomePage = () => {
+  const [showSignup, setShowSignup] = useState(false);
+
+  const handleCreateAccountClick = () => {
+    setShowSignup(true);
+  };
+
+  const handleCloseSignup = () => {
+    setShowSignup(false);
+  };
 
   return (
     <PageWrapper>
@@ -501,7 +511,7 @@ const HomePage = () => {
               See the Collections <FiArrowRight />
             </Button>
           </EcommerceInfo>
-          <EcommerceImage>git
+          <EcommerceImage>
             <img src={market} alt="E-commerce Marketplace" />
             <img src={custm} alt="Custom Design" className="accent-image" />
           </EcommerceImage>
@@ -517,7 +527,7 @@ const HomePage = () => {
             Join Kimelia Luxe today and unlock endless possibilities for your personal style.
           </CTADescription>
           <CTAButtons>
-            <Button as={Link} to="/signup">
+            <Button onClick={handleCreateAccountClick}>
               Create Your Free Account
             </Button>
             <Button as={Link} to="/about" variant="outline">
@@ -526,6 +536,8 @@ const HomePage = () => {
             </CTAButtons>
           </CTAContent>
       </CTASection>
+
+      {showSignup && <SignupPage onClose={handleCloseSignup} />}
     </PageWrapper>
   );
 };

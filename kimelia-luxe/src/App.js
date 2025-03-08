@@ -17,7 +17,7 @@ import DesignToolsPage from './pages/DesignToolsPage';
 import MarketplacePage from './pages/MarketplacePage';
 import AboutPage from './pages/AboutPage';
 import LoginPage from './pages/LoginPage';
-import SignupPage from './pages/SingnupPage.jsx';
+import SignupPage from './pages/SingnupPage.jsx'; // Corrected import
 
 // Import design tool pages
 import VirtualFittingPage from './pages/design-tools/VirtualFittingPage';
@@ -27,8 +27,20 @@ import CustomEditorPage from './pages/design-tools/CustomEditorPage';
 import styled from 'styled-components';
 import CustomerDashboard from './pages/CustomerDashboard.jsx';
 import ProfilePage from './pages/ProfilePage.jsx';
-import ProductDetailPage from './pages/design-tools/ProductDetailpage.jsx';
+import ProductDetailPage from './pages/design-tools/ProductDetailpage.jsx'; // Corrected path and name
 import ContactPage from './pages/ContactPage.jsx';
+import DesignersPage from './pages/DesignerPage.jsx';
+import DesignerDetailPage from './pages/DesignerDetailspaage.jsx'; //Corrected path and name
+import CartPage from './pages/CartPage.jsx';
+import CheckoutPage from './pages/CheckoutPage.jsx';
+import ShopPage from './pages/ShopPage.jsx';
+import FAQPage from './pages/FAPage.jsx'; // Corrected import name
+import PrivacyPolicyPage from './pages/PrivacyPage.jsx';
+import BecomeSellerPage from './pages/SellerPsge.jsx';
+
+import SellerApplicationPage from './pages/SellerApplicationpage.jsx';
+import SellerInformationPage from './pages/SellerInformationPage';
+import TeamPage from './pages/TeamPage.jsx';
 
 // Styled component to apply dark mode styles to the main content
 const MainContent = styled.main`
@@ -124,12 +136,22 @@ const AppContent = () => {
                     <Route path="/design-tools/outfit-suggestions" element={<AiSuggestionsPage/>}/>
                     <Route path="/design-tools/custom-editor" element={<CustomEditorPage/>}/>
                     <Route path="/marketplace" element={<MarketplacePage/>}/>
-                    <Route path="/about" element={<AboutPage/>}/>
+                    <Route path="/about" element={<AboutPage openSignupModal={openSignupModal} />} />
                     <Route path="/cdashboard" element={<CustomerDashboard/>}/>
                     <Route path='/profile' element={<ProfilePage/>}/>
-                    <Route path='/detail' element={<ProductDetailPage/>}/>
                     <Route path='/contact' element={<ContactPage/>}/>
-             
+                    <Route path='/cart' element={<CartPage/>}/>
+                    <Route path='/checkout' element={<CheckoutPage/>}/>
+                    <Route path='/shop' element={<ShopPage/>}/>
+                    <Route path='/support/faq' element={<FAQPage/>}/>
+                    <Route path='/support/privacy' element={<PrivacyPolicyPage/>}/>
+                    <Route path='/marketplace/designers' element={<DesignersPage/>}/>
+                    <Route path='/marketplace/designers/:designerId' element={<DesignerDetailPage/>}/>
+                    <Route path="/marketplace/product/:productId" element={<ProductDetailPage />} />  {/* Corrected route */}
+                    <Route path='seller' element={<BecomeSellerPage/>}/>
+                    <Route path='seller/apply' element={<SellerApplicationPage/>}/>
+                    <Route path='seller/information' element={<SellerInformationPage/>}/>
+                    <Route path='about/team' element={<TeamPage/>}/>
                 </Routes>
                 {showLogin && (
                     <ModalOverlay>
@@ -138,7 +160,7 @@ const AppContent = () => {
                 )}
                 {showSignup && (
                     <ModalOverlay>
-                        <SignupPage closeModal={closeSignupModal}/>
+                        <SignupPage closeModal={closeSignupModal} onSwitchToLogin={openLoginModal}/>
                     </ModalOverlay>
                 )}
             </MainContent>
