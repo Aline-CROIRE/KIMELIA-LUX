@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useState } from 'react';
 import { Link } from 'react-router-dom';
 import styled from 'styled-components';
 import { FiCamera, FiPenTool, FiZap, FiEdit, FiArrowRight } from 'react-icons/fi';
@@ -7,8 +7,19 @@ import virtual from '../assets/images/virtual.webp'
 import d3 from '../assets/images/3D.webp'
 import suggestion from '../assets/images/suggestion.webp'
 import edit from '../assets/images/editor.webp'
+import SignupPage from './SingnupPage'; // Import the SignupPage component
 
 const DesignToolsPage = () => {
+  const [showSignup, setShowSignup] = useState(false);
+
+  const handleOpenSignup = () => {
+    setShowSignup(true);
+  };
+
+  const handleCloseSignup = () => {
+    setShowSignup(false);
+  };
+
   return (
     <PageContainer>
       {/* Hero Section */}
@@ -159,9 +170,9 @@ const DesignToolsPage = () => {
               Start using our design tools today and bring your fashion ideas to life.
             </p>
             <ButtonGroup>
-              <Link to="/signup" className="btn btn-gold">
+              <button onClick={handleOpenSignup} className="btn btn-gold">
                 Create Free Account
-              </Link>
+              </button>
               <Link to="/pricing" className="btn btn-outline">
                 View Pricing
               </Link>
@@ -169,6 +180,9 @@ const DesignToolsPage = () => {
           </CTAContent>
         </div>
       </CTASection>
+
+      {/* Signup Overlay */}
+      {showSignup && <SignupPage onClose={handleCloseSignup} />}
     </PageContainer>
   );
 };

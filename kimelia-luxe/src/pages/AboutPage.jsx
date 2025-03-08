@@ -1,3 +1,4 @@
+// src/pages/AboutPage.jsx
 import React from "react";
 import styled from "styled-components";
 import { FaGem, FaGlobe, FaStar, FaShippingFast, FaHeadphonesAlt, FaLock, FaAward, FaArrowRight, FaReact, FaNodeJs, FaDatabase, FaBrain } from "react-icons/fa";
@@ -149,7 +150,7 @@ const Button = styled.a`
 
   &:hover {
     background: ${props => props.outline ? '#d4af37' : 'transparent'};
-    color: ${props => props.outline ? 'white' : '#d4af37'};
+    color: ${props => props.outline ? '#white' : '#d4af37'};
   }
 
   svg {
@@ -436,6 +437,7 @@ const CTATitle = styled.h2`
   -webkit-background-clip: text;
   -webkit-text-fill-color: transparent;
   display: inline-block;
+  letter-spacing: 1.5px;
 `;
 
 const CTAText = styled.p`
@@ -597,8 +599,26 @@ const InfoText = styled.p`
   color: #666;
   line-height: 1.6;
 `;
+const OpenButton = styled.button`
+padding: 14px;
+border-radius: 5px;
+border: none;
+background: #D4AF37;
+color: white;
+font-size: 18px;
+cursor: pointer;
+transition: background 0.2s ease-in-out;
 
-const AboutPage = () => {
+&:hover {
+background: #C09A30;
+}
+
+&:active {
+transform: translateY(1px);
+box-shadow: 0 1px 3px rgba(0, 0, 0, 0.15);
+}
+`
+const AboutPage = ({openSignupModal}) => {
   return (
     <PageContainer>
       {/* Hero Section */}
@@ -768,7 +788,7 @@ const AboutPage = () => {
           </TeamCard>
         </TeamGrid>
         <ButtonContainer>
-          <Button outline href="/about/team">
+          <Button href="/about/team">
             View Full Team <FaArrowRight />
           </Button>
         </ButtonContainer>
@@ -874,9 +894,9 @@ const AboutPage = () => {
             marketplace.
           </CTAText>
           <CTAButtons>
-            <Button href="/signup">
+            <OpenButton onClick={openSignupModal}>
               Sign Up Now
-            </Button>
+            </OpenButton>
             <OutlineButton href="/contact">
               Contact Us
               </OutlineButton>

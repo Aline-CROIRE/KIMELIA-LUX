@@ -156,7 +156,7 @@ const VirtualFittingPage = () => {
                       </GarmentImage>
                       <GarmentInfo>
                         <h3>{garment.name}</h3>
-                        <p>${garment.price}</p>
+                        <p>{garment.price} RWF</p>
                       </GarmentInfo>
                     </GarmentCard>
                   ))}
@@ -199,7 +199,7 @@ const VirtualFittingPage = () => {
                   <TryOnOptions>
                     <TryOnInfo>
                       <h3>Elegant Silk Evening Dress</h3>
-                      <p className="price">$199.99</p>
+                      <p className="price">199.99 RWF</p>
                       <p className="description">
                         This stunning silk evening dress features a flattering A-line silhouette with delicate embroidery details.
                       </p>

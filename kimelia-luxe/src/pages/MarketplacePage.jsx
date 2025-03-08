@@ -1,4 +1,5 @@
-import React from 'react';
+"use client"
+import React, { useState } from 'react';
 import { Link } from 'react-router-dom';
 import styled from 'styled-components';
 import { FiShoppingBag, FiTag, FiFilter, FiSearch, FiArrowRight } from 'react-icons/fi';
@@ -20,7 +21,7 @@ const products = [
     id: 1,
     name: "Elegant Evening Gown",
     designer: "KIM Couture",
-    price: 299.99,
+    price: 299.99 * 1200, //Example conversion to RWF
     image:elegant,
     category: "Dresses",
     isCustom: false,
@@ -31,7 +32,7 @@ const products = [
     id: 2,
     name: "Tailored Business Suit",
     designer: "Modern Tailor",
-    price: 399.99,
+    price: 399.99 * 1200, //Example conversion to RWF
     image: suit,
     category: "Suits",
     isCustom: true,
@@ -42,7 +43,7 @@ const products = [
     id: 3,
     name: "Summer Collection Blouse",
     designer: "Fresh Designs",
-    price: 89.99,
+    price: 89.99 * 1200, //Example conversion to RWF
     image: summer,
     category: "Tops",
     isCustom: false,
@@ -53,7 +54,7 @@ const products = [
     id: 4,
     name: "Handcrafted Leather Jacket",
     designer: "Artisan Leathers",
-    price: 499.99,
+    price: 499.99 * 1200, //Example conversion to RWF
     image: jacket,
     category: "Outerwear",
     isCustom: true,
@@ -64,7 +65,7 @@ const products = [
     id: 5,
     name: "Casual Denim Collection",
     designer: "Urban Style",
-    price: 129.99,
+    price: 129.99 * 1200, //Example conversion to RWF
     image: collect,
     category: "Jeans",
     isCustom: false,
@@ -75,7 +76,7 @@ const products = [
     id: 6,
     name: "Silk Evening Scarf",
     designer: "Luxury Accessories",
-    price: 79.99,
+    price: 79.99 * 1200, //Example conversion to RWF
     image:scaf,
     category: "Accessories",
     isCustom: false,
@@ -86,7 +87,7 @@ const products = [
     id: 7,
     name: "Custom Wedding Dress",
     designer: "Bridal Dreams",
-    price: 1299.99,
+    price: 1299.99 * 1200, //Example conversion to RWF
     image: wedding,
     category: "Wedding",
     isCustom: true,
@@ -97,7 +98,7 @@ const products = [
     id: 8,
     name: "Handmade Wool Sweater",
     designer: "Cozy Knits",
-    price: 149.99,
+    price: 149.99 * 1200, //Example conversion to RWF
     image: sweater,
     category: "Knitwear",
     isCustom: true,
@@ -117,6 +118,8 @@ const categories = [
   "Accessories",
   "Wedding",
   "Knitwear",
+  "Imishanana", // Traditional Rwandan Cloth
+  "Agaseke", // Traditional Rwandan Basket
 ];
 
 const MarketplacePage = () => {
@@ -126,12 +129,12 @@ const MarketplacePage = () => {
       <HeroSection>
         <div className="container">
           <HeroContent>
-            <h1>Fashion Marketplace</h1>
+            <h1>Kimelia Luxe Marketplace - Rwanda</h1>
             <p>
-              Discover ready-made and custom fashion from talented designers and tailors around the world.
+              Discover unique fashion, from modern designs to traditional Rwandan craftsmanship. Support local designers and tailors.
             </p>
             <ButtonGroup>
-              <Link to="#products" className="btn btn-gold">
+              <Link to="/shop" className="btn btn-gold">
                 Shop Now
               </Link>
               <Link to="/marketplace/designers" className="btn btn-outline">
@@ -150,27 +153,27 @@ const MarketplacePage = () => {
               <FeatureIcon>
                 <FiShoppingBag />
               </FeatureIcon>
-              <h3>Multi-vendor Marketplace</h3>
+              <h3>Diverse Vendor Marketplace</h3>
               <p>
-                Designers and tailors from around the world list their products for sale, offering both ready-made and custom items.
+                Connect with Rwandan designers and tailors, offering a range of styles from modern trends to cultural heritage.
               </p>
             </FeatureBox>
             <FeatureBox>
               <FeatureIcon>
                 <FiTag />
               </FeatureIcon>
-              <h3>Secure Payments</h3>
+              <h3>Secure & Convenient Payments</h3>
               <p>
-                Multiple payment options including Mobile Money (MoMo), PayPal, and credit cards with secure transaction processing.
+                Pay safely with Mobile Money (MoMo), credit cards, and other convenient options. Secure transactions guaranteed.
               </p>
             </FeatureBox>
             <FeatureBox>
               <FeatureIcon>
                 <FiFilter />
               </FeatureIcon>
-              <h3>Advanced Filtering</h3>
+              <h3>Refined Search & Filtering</h3>
               <p>
-                Find exactly what you're looking for with our advanced search and filtering options by category, style, and more.
+                Easily find what you're looking for by category, style, size, and more with our powerful search tools.
               </p>
             </FeatureBox>
           </FeaturesGrid>
@@ -200,9 +203,9 @@ const MarketplacePage = () => {
                   ))}
                 </FilterOptions>
               </FilterSection>
-              
+
               <FilterSection>
-                <h3>Price Range</h3>
+                <h3>Price Range (RWF)</h3> {/* Rwandan Francs */}
                 <PriceRange>
                   <PriceInput>
                     <label htmlFor="min-price">Min</label>
@@ -217,13 +220,13 @@ const MarketplacePage = () => {
                     <input
                       type="number"
                       id="max-price"
-                      placeholder="1000"
+                      placeholder="100000" // Adjusted Placeholder
                     />
                   </PriceInput>
                 </PriceRange>
                 <button className="btn btn-outline btn-sm">Apply</button>
               </FilterSection>
-              
+
               <FilterSection>
                 <h3>Product Type</h3>
                 <FilterOptions>
@@ -250,7 +253,7 @@ const MarketplacePage = () => {
                 </FilterOptions>
               </FilterSection>
             </Sidebar>
-            
+
             {/* Products Grid */}
             <ProductsContent>
               <ProductsHeader>
@@ -263,7 +266,7 @@ const MarketplacePage = () => {
                   />
                 </SearchBox>
               </ProductsHeader>
-              
+
               <ProductsGrid>
                 {products.map((product) => (
                   <ProductCard key={product.id}>
@@ -283,16 +286,24 @@ const MarketplacePage = () => {
                       <ProductName>{product.name}</ProductName>
                       <ProductDesigner>{product.designer}</ProductDesigner>
                       <ProductFooter>
-                        <ProductPrice>${product.price.toFixed(2)}</ProductPrice>
+                        <ProductPrice>RWF {product.price.toFixed(0)}</ProductPrice> {/* Display price in RWF */}
                         <AddToCartButton>
                           <FiShoppingBag />
                         </AddToCartButton>
                       </ProductFooter>
                     </ProductInfo>
+                       {/* "View Details" link */}
+                       <DetailLink to={`/product/${product.id}`}>
+                            View Details
+                        </DetailLink>
+                      {/* "View Details" icon - optional */}
+                      {/*<DetailLink to={`/product/${product.id}`}>
+                          <FiArrowRight />
+                       </DetailLink>*/}
                   </ProductCard>
                 ))}
               </ProductsGrid>
-              
+
               <LoadMoreButton>
                 <button className="btn btn-outline">Load More Products</button>
               </LoadMoreButton>
@@ -305,12 +316,12 @@ const MarketplacePage = () => {
       <DesignerSection>
         <div className="container">
           <SectionTitle>
-            <h2>Designer Spotlight</h2>
+            <h2>Meet Our Designers</h2>
             <p>
-              Meet the talented designers and tailors who bring their creativity and craftsmanship to Kimelia Luxe.
+              Discover the creativity and skill of Rwanda's talented fashion designers and tailors.
             </p>
           </SectionTitle>
-          
+
           <DesignerGrid>
             <DesignerCard>
               <DesignerImage>
@@ -329,7 +340,7 @@ const MarketplacePage = () => {
                 </Link>
               </DesignerInfo>
             </DesignerCard>
-            
+
             <DesignerCard>
               <DesignerImage>
                 <img src={d1} alt="Designer Portrait" />
@@ -347,7 +358,7 @@ const MarketplacePage = () => {
                 </Link>
               </DesignerInfo>
             </DesignerCard>
-            
+
             <DesignerCard>
               <DesignerImage>
                 <img src={d2}alt="Designer Portrait" />
@@ -366,7 +377,7 @@ const MarketplacePage = () => {
               </DesignerInfo>
             </DesignerCard>
           </DesignerGrid>
-          
+
           <ViewAllDesigners>
             <Link to="/marketplace/designers" className="btn btn-gold">
               View All Designers <FiArrowRight />
@@ -379,15 +390,15 @@ const MarketplacePage = () => {
       <CTASection>
         <div className="container">
           <CTAContent>
-            <h2>Become a Seller on Kimelia Luxe</h2>
+            <h2>Become a Seller on Kimelia Luxe - Rwanda</h2>
             <p>
-              Are you a fashion designer or tailor? Join our marketplace and showcase your creations to customers worldwide.
+              Are you a Rwandan fashion designer or tailor? Join our marketplace and showcase your creations to a wider audience.
             </p>
             <ButtonGroup>
-              <Link to="/marketplace/become-seller" className="btn btn-gold">
-                Apply Now
+              <Link to="/seller" className="btn btn-gold">
+                Become A seller
               </Link>
-              <Link to="/marketplace/seller-info" className="btn btn-outline">
+              <Link to="/seller/information" className="btn btn-outline">
                 Learn More
               </Link>
             </ButtonGroup>
@@ -485,7 +496,7 @@ const FeatureIcon = styled.div`
   align-items: center;
   justify-content: center;
   margin: 0 auto;
-  
+
   svg {
     color: var(--gold-primary);
     font-size: 1.8rem;
@@ -808,7 +819,7 @@ const DesignerInfo = styled.div`
   .btn-sm {
     display: inline-flex;
     align-items: center;
-    
+
     svg {
       margin-left: 0.5rem;
     }
@@ -822,7 +833,7 @@ const ViewAllDesigners = styled.div`
   .btn {
     display: inline-flex;
     align-items: center;
-    
+
     svg {
       margin-left: 0.5rem;
     }
@@ -862,6 +873,20 @@ const CTAContent = styled.div`
 
   .btn-outline:hover {
     background-color: rgba(255, 255, 255, 0.1);
+  }
+`;
+
+const DetailLink = styled(Link)`
+  display: block;
+  text-align: center;
+  margin-top: 0.5rem;
+  color: var(--gold-primary);
+  text-decoration: none;
+  font-weight: 500;
+  transition: color 0.3s ease;
+
+  &:hover {
+    color: var(--gold-light);
   }
 `;
 

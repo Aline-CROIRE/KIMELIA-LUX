@@ -1,3 +1,4 @@
+// src/pages/SignupPage.jsx
 import React, { useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import styled from 'styled-components';
@@ -5,245 +6,241 @@ import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faEye, faEyeSlash } from '@fortawesome/free-solid-svg-icons';
 
 const SignupPage = ({ onClose, onSwitchToLogin }) => {
-    const [formData, setFormData] = useState({
-        firstName: '',
-        lastName: '',
-        email: '',
-        password: '',
-        confirmPassword: '',
-        role: '',
-        agreeTerms: false
+  const [formData, setFormData] = useState({
+    firstName: '',
+    lastName: '',
+    email: '',
+    password: '',
+    confirmPassword: '',
+    role: '',
+    agreeTerms: false
+  });
+
+  const [error, setError] = useState('');
+  const navigate = useNavigate();
+  const [showPassword, setShowPassword] = useState(false);
+  const [showConfirmPassword, setShowConfirmPassword] = useState(false);
+
+  const togglePasswordVisibility = () => {
+    setShowPassword(!showPassword);
+  };
+
+  const toggleConfirmPasswordVisibility = () => {
+    setShowConfirmPassword(!showConfirmPassword);
+  };
+
+  const handleChange = (e) => {
+    const { name, value, type, checked } = e.target;
+    setFormData({
+      ...formData,
+      [name]: type === 'checkbox' ? checked : value
     });
+  };
 
-    const [error, setError] = useState('');
-    const navigate = useNavigate();
-    const [showPassword, setShowPassword] = useState(false);
-    const [showConfirmPassword, setShowConfirmPassword] = useState(false);
+  const handleSubmit = (e) => {
+    e.preventDefault();
 
-    const togglePasswordVisibility = () => {
-        setShowPassword(!showPassword);
-    };
+    // Simple validation checks (can be expanded)
+    if (!formData.firstName || !formData.lastName) {
+      setError('Please enter your first and last name.');
+      return;
+    }
 
-    const toggleConfirmPasswordVisibility = () => {
-        setShowConfirmPassword(!showConfirmPassword);
-    };
+    if (!formData.email) {
+      setError('Please enter your email address.');
+      return;
+    }
 
-    const handleChange = (e) => {
-        const { name, value, type, checked } = e.target;
-        setFormData({
-            ...formData,
-            [name]: type === 'checkbox' ? checked : value
-        });
-    };
+    if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(formData.email)) {
+      setError('Please enter a valid email address.');
+      return;
+    }
 
-    const handleSubmit = (e) => {
-        e.preventDefault();
+    if (!formData.password) {
+      setError('Please enter a password.');
+      return;
+    }
 
-        // Simple validation checks (can be expanded)
-        if (!formData.firstName || !formData.lastName) {
-            setError('Please enter your first and last name.');
-            return;
-        }
+    if (formData.password.length < 8) {
+      setError('Password must be at least 8 characters long.');
+      return;
+    }
 
-        if (!formData.email) {
-            setError('Please enter your email address.');
-            return;
-        }
+    if (!formData.role) {
+      setError('Please select a role');
+      return;
+    }
 
-        if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(formData.email)) {
-            setError('Please enter a valid email address.');
-            return;
-        }
+    if (formData.password !== formData.confirmPassword) {
+      setError('Passwords do not match');
+      return;
+    }
 
-        if (!formData.password) {
-            setError('Please enter a password.');
-            return;
-        }
+    if (!formData.agreeTerms) {
+      setError('You must agree to the terms and conditions');
+      return;
+    }
 
-        if (formData.password.length < 8) {
-            setError('Password must be at least 8 characters long.');
-            return;
-        }
+    // Simulate signup process (replace with actual API call)
+    console.log('Signup attempt with:', formData);
 
+    // Here you would typically call an API to create a new user
+    // Example:
+    // api.signup(formData)
+    //  .then(response => {
+    //    console.log('Signup successful', response);
+    //    navigate('/'); // Redirect on success
+    //    onClose();
+    //  })
+    //  .catch(error => {
+    //    console.error('Signup failed', error);
+    //    setError('Signup failed. Please try again.'); // Provide a general error message
+    //  });
 
-        if (!formData.role) {
-            setError('Please select a role');
-            return;
-        }
+    // For this example, let's just simulate success:
+    setTimeout(() => { // Simulate API delay
+      onClose(); // Close the modal
+      navigate('/'); // Redirect to home page
+    }, 500);
+  };
 
-        if (formData.password !== formData.confirmPassword) {
-            setError('Passwords do not match');
-            return;
-        }
+  return (
+    <Overlay>
+      <ModalWrapper>
+        <ModalContent>
+          <CloseButton onClick={onClose} aria-label="Close">×</CloseButton>
 
-        if (!formData.agreeTerms) {
-            setError('You must agree to the terms and conditions');
-            return;
-        }
+          <SignupHeader>
+            <h1>Create Account</h1>
+            <p>Join Kimelia Luxe for exclusive access</p>
+          </SignupHeader>
 
-        // Simulate signup process (replace with actual API call)
-        console.log('Signup attempt with:', formData);
-        //  Here you would typically call an API to create a new user
-        //  Example:
-        //  api.signup(formData)
-        //   .then(response => {
-        //      console.log('Signup successful', response);
-        //      navigate('/'); // Redirect on success
-        //      onClose();
-        //   })
-        //   .catch(error => {
-        //     console.error('Signup failed', error);
-        //     setError('Signup failed. Please try again.'); // Provide a general error message
-        //   });
+          {error && <ErrorMessage>{error}</ErrorMessage>}
 
-        //For this example, let's just simulate success:
-        setTimeout(() => { // Simulate API delay
-            navigate('/');
-            onClose();
-        }, 500);
+          <FormWrapper onSubmit={handleSubmit}>
+            <NameFieldsContainer>
+              <FormGroup>
+                <Label htmlFor="firstName">First Name</Label>
+                <Input
+                  type="text"
+                  id="firstName"
+                  name="firstName"
+                  value={formData.firstName}
+                  onChange={handleChange}
+                  required
+                  placeholder="Enter first name"
+                />
+              </FormGroup>
 
+              <FormGroup>
+                <Label htmlFor="lastName">Last Name</Label>
+                <Input
+                  type="text"
+                  id="lastName"
+                  name="lastName"
+                  value={formData.lastName}
+                  onChange={handleChange}
+                  required
+                  placeholder="Enter last name"
+                />
+              </FormGroup>
+            </NameFieldsContainer>
 
-    };
+            <FormGroup>
+              <Label htmlFor="email">Email</Label>
+              <Input
+                type="email"
+                id="email"
+                name="email"
+                value={formData.email}
+                onChange={handleChange}
+                required
+                placeholder="Enter your email"
+              />
+            </FormGroup>
 
-    return (
-        <Overlay>
-            <ModalWrapper>
-                <ModalContent>
-                    <CloseButton onClick={onClose} aria-label="Close">×</CloseButton>
+            <PasswordContainer>
+              <FormGroup>
+                <Label htmlFor="password">Password</Label>
+                <PasswordInputWrapper>
+                  <Input
+                    type={showPassword ? "text" : "password"}
+                    id="password"
+                    name="password"
+                    value={formData.password}
+                    onChange={handleChange}
+                    required
+                    placeholder="Enter your password"
+                  />
+                  <PasswordToggle onClick={togglePasswordVisibility}>
+                    <FontAwesomeIcon icon={showPassword ? faEyeSlash : faEye} />
+                  </PasswordToggle>
+                </PasswordInputWrapper>
+              </FormGroup>
+            </PasswordContainer>
 
-                    <SignupHeader>
-                        <h1>Create Account</h1>
-                        <p>Join Kimelia Luxe for exclusive access</p>
-                    </SignupHeader>
+            <PasswordContainer>
+              <FormGroup>
+                <Label htmlFor="confirmPassword">Confirm Password</Label>
+                <PasswordInputWrapper>
+                  <Input
+                    type={showConfirmPassword ? "text" : "password"}
+                    id="confirmPassword"
+                    name="confirmPassword"
+                    value={formData.confirmPassword}
+                    onChange={handleChange}
+                    required
+                    placeholder="Confirm your password"
+                  />
+                  <PasswordToggle onClick={toggleConfirmPasswordVisibility}>
+                    <FontAwesomeIcon icon={showConfirmPassword ? faEyeSlash : faEye} />
+                  </PasswordToggle>
+                </PasswordInputWrapper>
+              </FormGroup>
+            </PasswordContainer>
 
-                    {error && <ErrorMessage>{error}</ErrorMessage>}
+            <FormGroup>
+              <Label>Select Your Role</Label>
+              <RoleSelectionContainer>
+                {['customer', 'designer', 'seller'].map(role => (
+                  <RoleOption
+                    key={role}
+                    selected={formData.role === role}
+                    onClick={() => setFormData({ ...formData, role })}
+                  >
+                    <RoleTitle>{role.charAt(0).toUpperCase() + role.slice(1)}</RoleTitle>
+                  </RoleOption>
+                ))}
+              </RoleSelectionContainer>
+            </FormGroup>
 
-                    <FormWrapper onSubmit={handleSubmit}>
-                        <NameFieldsContainer>
-                            <FormGroup>
-                                <Label htmlFor="firstName">First Name</Label>
-                                <Input
-                                    type="text"
-                                    id="firstName"
-                                    name="firstName"
-                                    value={formData.firstName}
-                                    onChange={handleChange}
-                                    required
-                                    placeholder="Enter first name"
-                                />
-                            </FormGroup>
+            <CheckboxGroup>
+              <input
+                type="checkbox"
+                id="agreeTerms"
+                name="agreeTerms"
+                checked={formData.agreeTerms}
+                onChange={handleChange}
+              />
+              <label htmlFor="agreeTerms">
+                I agree to the <TermsLink to="/terms">Terms</TermsLink> and{' '}
+                <TermsLink to="/privacy">Privacy Policy</TermsLink>
+              </label>
+            </CheckboxGroup>
 
-                            <FormGroup>
-                                <Label htmlFor="lastName">Last Name</Label>
-                                <Input
-                                    type="text"
-                                    id="lastName"
-                                    name="lastName"
-                                    value={formData.lastName}
-                                    onChange={handleChange}
-                                    required
-                                    placeholder="Enter last name"
-                                />
-                            </FormGroup>
-                        </NameFieldsContainer>
+            <SubmitButton type="submit">Create Account</SubmitButton>
+          </FormWrapper>
 
-                        <FormGroup>
-                            <Label htmlFor="email">Email</Label>
-                            <Input
-                                type="email"
-                                id="email"
-                                name="email"
-                                value={formData.email}
-                                onChange={handleChange}
-                                required
-                                placeholder="Enter your email"
-                            />
-                        </FormGroup>
-
-                        <PasswordContainer>
-                            <FormGroup>
-                                <Label htmlFor="password">Password</Label>
-                                <PasswordInputWrapper>
-                                    <Input
-                                        type={showPassword ? "text" : "password"}
-                                        id="password"
-                                        name="password"
-                                        value={formData.password}
-                                        onChange={handleChange}
-                                        required
-                                        placeholder="Enter your password"
-                                    />
-                                    <PasswordToggle onClick={togglePasswordVisibility}>
-                                        <FontAwesomeIcon icon={showPassword ? faEyeSlash : faEye} />
-                                    </PasswordToggle>
-                                </PasswordInputWrapper>
-                            </FormGroup>
-                        </PasswordContainer>
-
-                        <PasswordContainer>
-                            <FormGroup>
-                                <Label htmlFor="confirmPassword">Confirm Password</Label>
-                                <PasswordInputWrapper>
-                                    <Input
-                                        type={showConfirmPassword ? "text" : "password"}
-                                        id="confirmPassword"
-                                        name="confirmPassword"
-                                        value={formData.confirmPassword}
-                                        onChange={handleChange}
-                                        required
-                                        placeholder="Confirm your password"
-                                    />
-                                    <PasswordToggle onClick={toggleConfirmPasswordVisibility}>
-                                        <FontAwesomeIcon icon={showConfirmPassword ? faEyeSlash : faEye} />
-                                    </PasswordToggle>
-                                </PasswordInputWrapper>
-                            </FormGroup>
-                        </PasswordContainer>
-
-
-                        <FormGroup>
-                            <Label>Select Your Role</Label>
-                            <RoleSelectionContainer>
-                                {['customer', 'designer', 'seller'].map(role => (
-                                    <RoleOption
-                                        key={role}
-                                        selected={formData.role === role}
-                                        onClick={() => setFormData({ ...formData, role })}
-                                    >
-                                        <RoleTitle>{role.charAt(0).toUpperCase() + role.slice(1)}</RoleTitle>
-                                    </RoleOption>
-                                ))}
-                            </RoleSelectionContainer>
-                        </FormGroup>
-
-                        <CheckboxGroup>
-                            <input
-                                type="checkbox"
-                                id="agreeTerms"
-                                name="agreeTerms"
-                                checked={formData.agreeTerms}
-                                onChange={handleChange}
-                            />
-                            <label htmlFor="agreeTerms">
-                                I agree to the <TermsLink to="/terms">Terms</TermsLink> and{' '}
-                                <TermsLink to="/privacy">Privacy Policy</TermsLink>
-                            </label>
-                        </CheckboxGroup>
-
-                        <SubmitButton type="submit">Create Account</SubmitButton>
-                    </FormWrapper>
-
-                    {/* Added Login Option */}
-                    <LoginPrompt>
-                        Already have an account?{' '}
-                        <LoginLink onClick={onSwitchToLogin}>Log in</LoginLink>
-                    </LoginPrompt>
-                </ModalContent>
-            </ModalWrapper>
-        </Overlay>
-    );
+          {/* Added Login Option */}
+          <LoginPrompt>
+            Already have an account?{' '}
+            <LoginLink onClick={onSwitchToLogin}>Log in</LoginLink>
+          </LoginPrompt>
+        </ModalContent>
+      </ModalWrapper>
+    </Overlay>
+  );
 };
-
 
 // ✅ Styled Components (Updated Overlay Styles)
 const Overlay = styled.div`
@@ -258,7 +255,6 @@ const Overlay = styled.div`
   align-items: center;
   z-index: 1000;
 `;
-
 
 // 🔥 Other styled components remain the same.
 const ModalWrapper = styled.div`
@@ -361,7 +357,6 @@ const Input = styled.input`
   }
 `;
 
-
 const RoleSelectionContainer = styled.div`
   display: flex;
   justify-content: space-between;
@@ -436,7 +431,6 @@ const ErrorMessage = styled.div`
   margin-bottom: 1rem;
 `;
 
-
 const PasswordContainer = styled.div`
   position: relative;
 `;
@@ -481,6 +475,5 @@ const LoginLink = styled.button`
     text-decoration: underline;
   }
 `;
-
 
 export default SignupPage;

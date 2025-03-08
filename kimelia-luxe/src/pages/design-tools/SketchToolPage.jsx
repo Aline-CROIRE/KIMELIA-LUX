@@ -1,9 +1,21 @@
 import React, { useState } from 'react';
 import { Link } from 'react-router-dom';
 import styled from 'styled-components';
-import { FiPenTool, FiLayers, FiGrid, FiDownload, FiShare2, FiSave, FiArrowRight, FiSliders } from 'react-icons/fi';
-import backgroundImage from '../../assets/images/bg.webp';
+import { FiPenTool, FiLayers, FiGrid, FiDownload, FiShare2, FiArrowRight, FiSliders } from 'react-icons/fi';
+import backgroundImage from '../../assets/images/bg.webp'; // Ensure this path is correct
+import fabricDrapeImage from '../../assets/images/fabric_drape.webp';  // Add this line
+import exportOptionsImage from '../../assets/images/export_options.webp'; // Add this line
+import visualizationImage from '../../assets/images/3d_visualization.webp'; // Add this line
+import drawingToolsImage from '../../assets/images/drawing_tools.webp'; // Add this line
+import sketchinterface from  '../../assets/images/sketchtool.webp';
+import d1 from '../../assets/images/sara.JPG';
+import d2 from '../../assets/images/d2.jpg';
+import d3 from '../../assets/images/d3.webp';
+import s1 from '../../assets/images/s1.webp';
+import s2 from '../../assets/images/s2.webp';
+import s3 from '../../assets/images/s3.webp';
 
+const images = [s1, s2, s3, "/placeholder.svg?height=400&width=300&text=Design 4", "/placeholder.svg?height=400&width=300&text=Design 5", "/placeholder.svg?height=400&width=300&text=Design 6"];
 const SketchToolPage = () => {
   const [activeTab, setActiveTab] = useState('overview');
 
@@ -21,6 +33,7 @@ const SketchToolPage = () => {
             <ButtonGroup>
               <button className="btn btn-gold">
                 Launch Sketch Tool
+                <FiArrowRight style={{ marginLeft: '0.5rem' }} />
               </button>
               <button className="btn btn-outline">
                 Watch Tutorial
@@ -34,26 +47,26 @@ const SketchToolPage = () => {
       <TabsSection>
         <div className="container">
           <TabsContainer>
-            <Tab 
-              active={activeTab === 'overview'} 
+            <Tab
+              active={activeTab === 'overview'}
               onClick={() => setActiveTab('overview')}
             >
               Overview
             </Tab>
-            <Tab 
-              active={activeTab === 'features'} 
+            <Tab
+              active={activeTab === 'features'}
               onClick={() => setActiveTab('features')}
             >
               Features
             </Tab>
-            <Tab 
-              active={activeTab === 'gallery'} 
+            <Tab
+              active={activeTab === 'gallery'}
               onClick={() => setActiveTab('gallery')}
             >
               Gallery
             </Tab>
-            <Tab 
-              active={activeTab === 'pricing'} 
+            <Tab
+              active={activeTab === 'pricing'}
               onClick={() => setActiveTab('pricing')}
             >
               Pricing
@@ -65,13 +78,13 @@ const SketchToolPage = () => {
               <OverviewTab>
                 <h2>Revolutionize Your Design Process</h2>
                 <p>
-                  Our 3D Fashion Sketch Tool is a professional-grade solution for fashion designers, 
-                  brands, and enthusiasts. Create detailed 3D fashion sketches, simulate different 
+                  Our 3D Fashion Sketch Tool is a professional-grade solution for fashion designers,
+                  brands, and enthusiasts. Create detailed 3D fashion sketches, simulate different
                   fabrics and materials, and view your designs from any angle.
                 </p>
 
                 <ToolPreview>
-                  <img src="/placeholder.svg?height=500&width=800" alt="3D Sketch Tool Interface" />
+                  <img src={ sketchinterface||"/placeholder.svg?height=500&width=800&text=3D Sketch Tool Interface"} alt="3D Sketch Tool Interface" />
                   <ToolOverlay>
                     <button className="btn btn-gold">
                       Try Demo
@@ -89,24 +102,24 @@ const SketchToolPage = () => {
                       Easy-to-use drawing tools specifically designed for fashion sketching.
                     </p>
                   </FeatureCard>
-                  
+
                   <FeatureCard>
                     <FeatureIcon>
                       <FiLayers />
                     </FeatureIcon>
-                    <h3>Fabric Simulation</h3>
+                    <h3>Realistic Fabric Simulation</h3>
                     <p>
-                      Realistic fabric simulation with over 100 material presets.
+                      Simulate fabric drape, fit, and movement to visualize designs before production.
                     </p>
                   </FeatureCard>
-                  
+
                   <FeatureCard>
                     <FeatureIcon>
                       <FiGrid />
                     </FeatureIcon>
                     <h3>3D Visualization</h3>
                     <p>
-                      View your designs from any angle with our 3D rendering engine.
+                      View your designs from any angle with our 360° 3D rendering engine.
                     </p>
                   </FeatureCard>
                 </FeaturesGrid>
@@ -123,7 +136,7 @@ const SketchToolPage = () => {
                 <FeaturesList>
                   <FeatureItem>
                     <FeatureImage>
-                      <img src="/placeholder.svg?height=300&width=400" alt="Drawing Tools" />
+                      <img src={drawingToolsImage || "/placeholder.svg?height=300&width=400"} alt="Drawing Tools" />
                     </FeatureImage>
                     <FeatureInfo>
                       <h3>Advanced Drawing Tools</h3>
@@ -142,17 +155,15 @@ const SketchToolPage = () => {
 
                   <FeatureItem reverse>
                     <FeatureImage>
-                      <img src="/placeholder.svg?height=300&width=400" alt="Fabric Library" />
+                      <img src={fabricDrapeImage || "/placeholder.svg?height=300&width=400"} alt="Fabric Library" />
                     </FeatureImage>
                     <FeatureInfo>
-                      <h3>Extensive Fabric Library</h3>
+                      <h3>Realistic Fabric Simulation</h3>
                       <p>
-                        Choose from over 500 fabric types with realistic textures and behaviors.
+                        Simulate fabric drape, fit, and movement to visualize designs before production.
                         Each fabric accurately simulates drape, weight, and movement.
                       </p>
                       <ul>
-                        <li>500+ fabric presets</li>
-                        <li>Custom fabric creation</li>
                         <li>Realistic drape simulation</li>
                         <li>Material property editor</li>
                       </ul>
@@ -161,7 +172,7 @@ const SketchToolPage = () => {
 
                   <FeatureItem>
                     <FeatureImage>
-                      <img src="/placeholder.svg?height=300&width=400" alt="3D Visualization" />
+                      <img src={visualizationImage || "/placeholder.svg?height=300&width=400"} alt="3D Visualization" />
                     </FeatureImage>
                     <FeatureInfo>
                       <h3>Real-time 3D Visualization</h3>
@@ -172,7 +183,6 @@ const SketchToolPage = () => {
                       <ul>
                         <li>360° view rotation</li>
                         <li>Realistic lighting options</li>
-                        <li>Virtual mannequin with adjustable measurements</li>
                         <li>Animation capabilities for movement simulation</li>
                       </ul>
                     </FeatureInfo>
@@ -180,7 +190,7 @@ const SketchToolPage = () => {
 
                   <FeatureItem reverse>
                     <FeatureImage>
-                      <img src="/placeholder.svg?height=300&width=400" alt="Export Options" />
+                      <img src={exportOptionsImage || "/placeholder.svg?height=300&width=400"} alt="Export Options" />
                     </FeatureImage>
                     <FeatureInfo>
                       <h3>Professional Export Options</h3>
@@ -191,7 +201,6 @@ const SketchToolPage = () => {
                         <li>Production-ready pattern exports</li>
                         <li>High-resolution renders</li>
                         <li>3D model exports (OBJ, FBX, GLB)</li>
-                        <li>Measurement specifications</li>
                       </ul>
                     </FeatureInfo>
                   </FeatureItem>
@@ -218,22 +227,30 @@ const SketchToolPage = () => {
                   {[1, 2, 3, 4, 5, 6].map(item => {
                     const GalleryItem = GalleryItemContainer;
                     return (
-                      <GalleryItem key={item}>
-                        <img src={`/placeholder.svg?height=400&width=300&text=Design ${item}`} alt={`Design ${item}`} />
-                        <GalleryItemOverlay>
-                          <h3>Fashion Design {item}</h3>
-                          <p>By Designer Name</p>
-                          <GalleryItemActions>
-                            <button>
-                              <FiDownload /> Download
-                            </button>
-                            <button>
-                              <FiShare2 /> Share
-                            </button>
-                          </GalleryItemActions>
-                        </GalleryItemOverlay>
-                      </GalleryItem>
-                    );
+               
+                        <GalleryGrid>
+                          {images.map((image, index) => {
+                            const GalleryItem = GalleryItemContainer;
+                            return (
+                              <GalleryItem key={index}>
+                                <img src={image} alt={`Design ${index + 1}`} />
+                                <GalleryItemOverlay>
+                                  <h3>Fashion Design {index + 1}</h3>
+                                  <p>By Designer Name</p>
+                                  <GalleryItemActions>
+                                    <button>
+                                      <FiDownload /> Download
+                                    </button>
+                                    <button>
+                                      <FiShare2 /> Share
+                                    </button>
+                                  </GalleryItemActions>
+                                </GalleryItemOverlay>
+                              </GalleryItem>
+                            );
+                          })}
+                        </GalleryGrid>
+                      );
                   })}
                 </GalleryGrid>
 
@@ -267,19 +284,16 @@ const SketchToolPage = () => {
                         <FiCheck /> Basic drawing tools
                       </li>
                       <li>
-                        <FiCheck /> 50 fabric presets
-                      </li>
-                      <li>
                         <FiCheck /> Standard 3D visualization
                       </li>
                       <li>
                         <FiCheck /> 5 exports per month
                       </li>
                       <li className="disabled">
-                        <FiX /> Advanced pattern tools
+                         Basic pattern tools
                       </li>
                       <li className="disabled">
-                        <FiX /> Custom fabric creation
+                        Custom fabric creation
                       </li>
                     </PricingFeatures>
                     <button className="btn btn-outline">
@@ -302,7 +316,7 @@ const SketchToolPage = () => {
                         <FiCheck /> All drawing tools
                       </li>
                       <li>
-                        <FiCheck /> 300 fabric presets
+                        <FiCheck /> Realistic Fabric Simulation
                       </li>
                       <li>
                         <FiCheck /> Advanced 3D visualization
@@ -334,9 +348,6 @@ const SketchToolPage = () => {
                     <PricingFeatures>
                       <li>
                         <FiCheck /> All Professional features
-                      </li>
-                      <li>
-                        <FiCheck /> 500+ fabric presets
                       </li>
                       <li>
                         <FiCheck /> Premium 3D visualization
@@ -375,7 +386,7 @@ const SketchToolPage = () => {
           </p>
 
           <InterfacePreview>
-            <img src="/placeholder.svg?height=600&width=1000" alt="Sketch Tool Interface" />
+          <img src={ sketchinterface||"/placeholder.svg?height=500&width=800&text=3D Sketch Tool Interface"} alt="3D Sketch Tool Interface" />
             <InterfaceHighlights>
               <InterfaceHighlight style={{ top: '20%', left: '15%' }}>
                 <span>1</span>
@@ -395,7 +406,7 @@ const SketchToolPage = () => {
                 <span>3</span>
                 <div className="tooltip">
                   <h4>Fabric Panel</h4>
-                  <p>500+ fabric presets with realistic properties</p>
+                  <p>Presets with realistic properties</p>
                 </div>
               </InterfaceHighlight>
               <InterfaceHighlight style={{ top: '70%', left: '85%' }}>
@@ -414,40 +425,40 @@ const SketchToolPage = () => {
       <TestimonialsSection>
         <div className="container">
           <h2>What Designers Say</h2>
-          
+
           <TestimonialsGrid>
             <TestimonialCard>
               <TestimonialContent>
                 "This 3D sketch tool has completely transformed my design process. I can now visualize my ideas in 3D before creating physical samples, saving time and resources."
               </TestimonialContent>
               <TestimonialAuthor>
-                <img src="/placeholder.svg?height=60&width=60" alt="Designer" />
+                <img src={d1||"/placeholder.svg?height=60&width=60&text=Designer" }alt="Designer" />
                 <div>
                   <h4>Sarah Johnson</h4>
                   <p>Fashion Designer, Paris</p>
                 </div>
               </TestimonialAuthor>
             </TestimonialCard>
-            
+
             <TestimonialCard>
               <TestimonialContent>
                 "The fabric simulation is incredibly realistic. I can see exactly how different materials will drape and move, which has improved my design accuracy tremendously."
               </TestimonialContent>
               <TestimonialAuthor>
-                <img src="/placeholder.svg?height=60&width=60" alt="Designer" />
+                <img src={d2||"/placeholder.svg?height=60&width=60&text=Designer" }alt="Designer" />
                 <div>
                   <h4>Michael Chen</h4>
                   <p>Creative Director, NYC</p>
                 </div>
               </TestimonialAuthor>
             </TestimonialCard>
-            
+
             <TestimonialCard>
               <TestimonialContent>
                 "As a fashion design educator, this tool has been invaluable for teaching students. They can experiment freely without wasting materials and see immediate results."
               </TestimonialContent>
               <TestimonialAuthor>
-                <img src="/placeholder.svg?height=60&width=60" alt="Designer" />
+                <img src={d3||"/placeholder.svg?height=60&width=60&text=Designer" }alt="Designer" />
                 <div>
                   <h4>Elena Rodriguez</h4>
                   <p>Fashion Institute Professor</p>
@@ -544,7 +555,7 @@ const ButtonGroup = styled.div`
     font-weight: 500;
     cursor: pointer;
     transition: all 0.3s ease;
-    
+
     svg {
       margin-left: 0.5rem;
     }
@@ -587,7 +598,7 @@ const TabsContainer = styled.div`
   margin-bottom: 2rem;
   overflow-x: auto;
   scrollbar-width: none;
-  
+
   &::-webkit-scrollbar {
     display: none;
   }
@@ -742,7 +753,7 @@ const FeatureItem = styled.div`
   ${props => props.reverse && `
     @media (min-width: 769px) {
       direction: rtl;
-      
+
       > * {
         direction: ltr;
       }
@@ -755,6 +766,8 @@ const FeatureImage = styled.div`
     width: 100%;
     border-radius: 8px;
     box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
+    object-fit: cover;
+    object-position: center;
   }
 `;
 
@@ -835,7 +848,7 @@ const GalleryItemContainer = styled.div`
   &:hover {
     transform: translateY(-5px);
     box-shadow: 0 15px 40px rgba(0, 0, 0, 0.1);
-    
+
     .gallery-item-overlay {
       opacity: 1;
     }
@@ -1197,6 +1210,8 @@ const TestimonialAuthor = styled.div`
     height: 60px;
     border-radius: 50%;
     margin-right: 1rem;
+    object-fit: cover;
+    object-position: center;
   }
 
   h4 {
