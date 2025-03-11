@@ -16,7 +16,7 @@ const PageContainer = styled.div`
   font-family: 'Arial', sans-serif;
 `;
 
-// Hero Section
+// Hero
 const HeroSection = styled.section`
   position: relative;
   padding: 150px 20px;
@@ -77,6 +77,17 @@ const SectionContainer = styled.section`
   max-width: 1200px;
   margin: 0 auto;
 `;
+
+// const StoryGrid = styled.div`
+//   display: grid;
+//   grid-template-columns: 1fr;
+//   gap: 40px;
+
+//   @media (min-width: 992px) {
+//     grid-template-columns: 1fr 1fr;
+//     align-items: center;
+//   }
+// `;
 
 const StoryGrid = styled.div`
   display: grid;
