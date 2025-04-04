@@ -3,6 +3,7 @@
 import { ToastContainer } from "react-toastify"
 import "react-toastify/dist/ReactToastify.css"
 import { useState, useEffect } from "react"
+// import { ThemeProvider } from "../src/pages/seller/themeContext.jsx"
 import {
   BrowserRouter as Router,
   Routes,
@@ -238,7 +239,12 @@ const AppContent = () => {
           <Route path="/contact" element={<ContactPage />} />
           <Route path="/cart" element={<CartPage />} />
           <Route path="/checkout" element={<CheckoutPage />} />
+          <Route path="/login" element={<LoginPage />} />
           <Route path="/shop" element={<ShopPage />} />
+
+          <Route path="/designer/dashboard" element={<DesignerDashboard/>} />
+          <Route path="/seller/dashboard" element={<SellerDashboard/>} />
+
           <Route path="/support/faq" element={<FAQPage />} />
           <Route path="/support/privacy" element={<PrivacyPolicyPage />} />
           <Route path="/marketplace/designers" element={<DesignersPage />} />
@@ -260,7 +266,7 @@ const AppContent = () => {
 
           {/* Dashboard routes - wrapped with necessary providers */}
           <Route
-            path="/admin/dashboard"
+            path="/dashboard"
             element={
               <DashboardWrapper>
                 <AdminDashboard />

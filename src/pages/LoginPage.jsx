@@ -1,4 +1,3 @@
-// src/pages/LoginPage.jsx
 import React, { useState } from 'react';
 import styled from 'styled-components';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
@@ -88,7 +87,11 @@ const LoginPage = ({ onClose, onSwitchToSignup, onLoginSuccess }) => {
             localStorage.setItem('username', fullName);
 
             // Call the login success handler with the full name
-            onLoginSuccess(fullName);
+            if(onLoginSuccess){ // add conditional check here
+              onLoginSuccess(fullName);
+            } else {
+              console.warn("onLoginSuccess prop is not a function")
+            }
 
             localStorage.setItem('token', data.token);
 
@@ -96,23 +99,27 @@ const LoginPage = ({ onClose, onSwitchToSignup, onLoginSuccess }) => {
             setIsBlocked(false);
 
             const userRole = data.role;
+            let redirectPath = '/'; // Default redirect path
+
             switch (userRole) {
                 case 'customer':
-                    navigate('/');
+                    redirectPath = '/';
                     break;
                 case 'designer':
-                    navigate('/design-tools');
+                    redirectPath = '/designer/dashboard';
                     break;
                 case 'seller':
-                    navigate('/marketplace');
+                    redirectPath = '/seller/dashboard';
                     break;
                 case 'admin':
-                    navigate('/dashboard');
+                    redirectPath = '/dashboard';
                     break;
                 default:
-                    navigate('/');
+                    redirectPath = '/';
                     break;
             }
+
+            navigate(redirectPath);
             onClose();
         } catch (error) {
             console.error('Login failed', error);

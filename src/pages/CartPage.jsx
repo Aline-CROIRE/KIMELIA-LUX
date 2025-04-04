@@ -1,12 +1,12 @@
 "use client"
-import { useState } from "react"
+import { useState, useEffect } from "react"
 import { Link } from "react-router-dom"
 import styled from "styled-components"
-import { 
-  FiShoppingBag, 
-  FiTrash2, 
-  FiHeart, 
-  FiChevronRight, 
+import {
+  FiShoppingBag,
+  FiTrash2,
+  FiHeart,
+  FiChevronRight,
   FiArrowLeft,
   FiShoppingCart,
   FiInfo,
@@ -14,6 +14,7 @@ import {
   FiLock
 } from "react-icons/fi"
 import Button from "../components/common/Button"
+import axios from "axios" // Import axios for making API requests
 
 const PageWrapper = styled.div`
   background: white;
@@ -61,7 +62,7 @@ const PageTitle = styled.h1`
   color: black;
   display: flex;
   align-items: center;
-  
+
   svg {
     margin-right: 1rem;
     color: #D4AF37;
@@ -72,7 +73,7 @@ const CartGrid = styled.div`
   display: grid;
   grid-template-columns: 2fr 1fr;
   gap: 2rem;
-  
+
   @media (max-width: 992px) {
     grid-template-columns: 1fr;
   }
@@ -92,14 +93,16 @@ const CartHeader = styled.div`
   background: #f9f9f9;
   border-bottom: 1px solid rgba(0, 0, 0, 0.1);
   font-weight: 600;
-  
+
   @media (max-width: 768px) {
     display: none;
   }
 `
 
 const CartHeaderItem = styled.div`
-  &:nth-child(2), &:nth-child(3), &:nth-child(4) {
+  &:nth-child(2),
+  &:nth-child(3),
+  &:nth-child(4) {
     text-align: center;
   }
 `
@@ -117,12 +120,12 @@ const CartItem = styled.div`
   align-items: center;
   padding-bottom: 1.5rem;
   border-bottom: 1px solid rgba(0, 0, 0, 0.1);
-  
+
   &:last-child {
     border-bottom: none;
     padding-bottom: 0;
   }
-  
+
   @media (max-width: 768px) {
     grid-template-columns: auto 1fr;
     grid-template-rows: repeat(3, auto);
@@ -134,7 +137,7 @@ const ItemInfo = styled.div`
   display: flex;
   align-items: center;
   gap: 1rem;
-  
+
   @media (max-width: 768px) {
     grid-column: 1 / -1;
   }
@@ -146,7 +149,7 @@ const ItemImage = styled.div`
   border-radius: 4px;
   overflow: hidden;
   background: #f5f5f5;
-  
+
   img {
     width: 100%;
     height: 100%;
@@ -178,11 +181,11 @@ const ItemMeta = styled.div`
 
 const ItemPrice = styled.div`
   font-weight: 600;
-  
+
   @media (max-width: 768px) {
     grid-column: 2;
     grid-row: 2;
-    
+
     &::before {
       content: 'Price: ';
       font-weight: normal;
@@ -195,12 +198,12 @@ const ItemQuantity = styled.div`
   display: flex;
   align-items: center;
   justify-content: center;
-  
+
   @media (max-width: 768px) {
     grid-column: 2;
     grid-row: 3;
     justify-content: flex-start;
-    
+
     &::before {
       content: 'Quantity: ';
       font-weight: normal;
@@ -220,7 +223,7 @@ const QuantityButton = styled.button`
   justify-content: center;
   cursor: pointer;
   transition: all 0.3s ease;
-  
+
   &:hover {
     background: rgba(0, 0, 0, 0.05);
   }
@@ -239,7 +242,7 @@ const QuantityInput = styled.input`
 const ItemSubtotal = styled.div`
   font-weight: 600;
   text-align: center;
-  
+
   @media (max-width: 768px) {
     display: none;
   }
@@ -248,7 +251,7 @@ const ItemSubtotal = styled.div`
 const ItemActions = styled.div`
   display: flex;
   gap: 0.5rem;
-  
+
   @media (max-width: 768px) {
     grid-column: 1;
     grid-row: 2 / 4;
@@ -267,16 +270,16 @@ const ActionButton = styled.button`
   justify-content: center;
   cursor: pointer;
   transition: all 0.3s ease;
-  
+
   svg {
     color: rgba(0, 0, 0, 0.7);
   }
-  
+
   &:hover {
     background: rgba(0, 0, 0, 0.05);
-    
+
     svg {
-      color: ${props => props.delete ? '#e53935' : '#D4AF37'};
+      color: ${props => (props.delete ? '#e53935' : '#D4AF37')};
     }
   }
 `
@@ -293,7 +296,7 @@ const SummaryHeader = styled.div`
   padding: 1.5rem;
   background: #f9f9f9;
   border-bottom: 1px solid rgba(0, 0, 0, 0.1);
-  
+
   h2 {
     font-size: 1.25rem;
     margin: 0;
@@ -309,11 +312,11 @@ const SummaryRow = styled.div`
   justify-content: space-between;
   margin-bottom: 1rem;
   font-size: 0.95rem;
-  color: ${props => props.total ? 'black' : 'rgba(0, 0, 0, 0.7)'};
-  font-weight: ${props => props.total ? '600' : '400'};
-  padding-bottom: ${props => props.total ? '1rem' : '0'};
-  border-bottom: ${props => props.total ? '1px solid rgba(0, 0, 0, 0.1)' : 'none'};
-  padding-top: ${props => props.total ? '1rem' : '0'};
+  color: ${props => (props.total ? 'black' : 'rgba(0, 0, 0, 0.7)')};
+  font-weight: ${props => (props.total ? '600' : '400')};
+  padding-bottom: ${props => (props.total ? '1rem' : '0')};
+  border-bottom: ${props => (props.total ? '1px solid rgba(0, 0, 0, 0.1)' : 'none')};
+  padding-top: ${props => (props.total ? '1rem' : '0')};
 `
 
 const PromoCode = styled.div`
@@ -328,7 +331,7 @@ const PromoInput = styled.input`
   border-right: none;
   border-radius: 4px 0 0 4px;
   font-size: 0.9rem;
-  
+
   &:focus {
     outline: none;
     border-color: #D4AF37;
@@ -343,7 +346,7 @@ const PromoButton = styled.button`
   border-radius: 0 4px 4px 0;
   cursor: pointer;
   transition: background 0.3s ease;
-  
+
   &:hover {
     background: #333;
   }
@@ -360,7 +363,7 @@ const SecureCheckout = styled.div`
   justify-content: center;
   font-size: 0.8rem;
   color: rgba(0, 0, 0, 0.6);
-  
+
   svg {
     margin-right: 0.5rem;
     color: #D4AF37;
@@ -414,11 +417,11 @@ const BackToShopping = styled(Link)`
   color: rgba(0, 0, 0, 0.7);
   text-decoration: none;
   transition: color 0.3s ease;
-  
+
   svg {
     margin-right: 0.5rem;
   }
-  
+
   &:hover {
     color: #D4AF37;
   }
@@ -476,98 +479,65 @@ const RelatedPrice = styled.div`
   font-weight: 600;
 `
 
-// Mock data
-const cartItems = [
-  {
-    id: 1,
-    name: "Elegant Silk Evening Gown",
-    designer: "KIM Couture",
-    price: 299.99,
-    quantity: 1,
-    color: "Black",
-    size: "S",
-    image: "/placeholder.svg?height=100&width=80"
-  },
-  {
-    id: 2,
-    name: "Designer Scarf",
-    designer: "Luxury Accessories",
-    price: 79.99,
-    quantity: 2,
-    color: "Blue",
-    size: "One Size",
-    image: "/placeholder.svg?height=100&width=80"
-  },
-  {
-    id: 3,
-    name: "Tailored Business Suit",
-    designer: "Modern Tailor",
-    price: 399.99,
-    quantity: 1,
-    color: "Navy",
-    size: "M",
-    image: "/placeholder.svg?height=100&width=80"
-  }
-];
-
-const relatedProducts = [
-  {
-    id: 1,
-    name: "Summer Collection Blouse",
-    designer: "Fresh Designs",
-    price: 89.99,
-    image: "/placeholder.svg?height=220&width=220"
-  },
-  {
-    id: 2,
-    name: "Handcrafted Leather Jacket",
-    designer: "Artisan Leathers",
-    price: 499.99,
-    image: "/placeholder.svg?height=220&width=220"
-  },
-  {
-    id: 3,
-    name: "Casual Denim Collection",
-    designer: "Urban Style",
-    price: 129.99,
-    image: "/placeholder.svg?height=220&width=220"
-  },
-  {
-    id: 4,
-    name: "Silk Evening Scarf",
-    designer: "Luxury Accessories",
-    price: 79.99,
-    image: "/placeholder.svg?height=220&width=220"
-  }
-];
-
 const CartPage = () => {
-  const [items, setItems] = useState(cartItems);
-  const isEmpty = items.length === 0;
-  
+  const [items, setItems] = useState([])
+  const [relatedProducts, setRelatedProducts] = useState([])
+  const [loading, setLoading] = useState(true)
+  const [error, setError] = useState(null)
+
+  useEffect(() => {
+    const fetchData = async () => {
+      try {
+        const cartResponse = await axios.get('https://kimelia-api.onrender.com/api/cart-items') // Replace with your actual cart endpoint
+        const relatedResponse = await axios.get('https://kimelia-api.onrender.com/api/related-products') // Replace with your actual related products endpoint
+
+        setItems(cartResponse.data)
+        setRelatedProducts(relatedResponse.data)
+      } catch (err) {
+        console.error("Error fetching data:", err)
+        setError(err.message || "An error occurred while fetching data.")
+      } finally {
+        setLoading(false)
+      }
+    }
+
+    fetchData()
+  }, [])
+
+  const isEmpty = items.length === 0
+
   const updateQuantity = (id, newQuantity) => {
-    if (newQuantity < 1) return;
-    
-    setItems(items.map(item => 
-      item.id === id ? { ...item, quantity: newQuantity } : item
-    ));
-  };
-  
+    if (newQuantity < 1) return
+
+    setItems(
+      items.map(item =>
+        item.id === id ? { ...item, quantity: newQuantity } : item
+      )
+    )
+  }
+
   const removeItem = (id) => {
-    setItems(items.filter(item => item.id !== id));
-  };
-  
+    setItems(items.filter(item => item.id !== id))
+  }
+
   const moveToWishlist = (id) => {
     // In a real app, this would add to wishlist and remove from cart
-    removeItem(id);
-  };
-  
+    removeItem(id)
+  }
+
   // Calculate totals
-  const subtotal = items.reduce((total, item) => total + (item.price * item.quantity), 0);
-  const shipping = 15.00;
-  const tax = subtotal * 0.15; // 15% tax
-  const total = subtotal + shipping + tax;
-  
+  const subtotal = items.reduce((total, item) => total + (item.price * item.quantity), 0)
+  const shipping = 15.00
+  const tax = subtotal * 0.15 // 15% tax
+  const total = subtotal + shipping + tax
+
+  if (loading) {
+    return <PageWrapper>Loading cart data...</PageWrapper>
+  }
+
+  if (error) {
+    return <PageWrapper>Error: {error}</PageWrapper>
+  }
   return (
     <PageWrapper>
       <Breadcrumb>
@@ -577,12 +547,12 @@ const CartPage = () => {
         <FiChevronRight />
         <span>Shopping Cart</span>
       </Breadcrumb>
-      
+
       <CartSection>
         <PageTitle>
           <FiShoppingBag /> Shopping Cart
         </PageTitle>
-        
+
         {isEmpty ? (
           <EmptyCart>
             <EmptyCartIcon>
@@ -599,7 +569,7 @@ const CartPage = () => {
             <BackToShopping to="/marketplace">
               <FiArrowLeft /> Continue Shopping
             </BackToShopping>
-            
+
             <CartGrid>
               <CartItems>
                 <CartHeader>
@@ -609,7 +579,7 @@ const CartPage = () => {
                   <CartHeaderItem>Subtotal</CartHeaderItem>
                   <CartHeaderItem></CartHeaderItem>
                 </CartHeader>
-                
+
                 <CartItemsList>
                   {items.map(item => (
                     <CartItem key={item.id}>
@@ -626,9 +596,9 @@ const CartPage = () => {
                           </ItemMeta>
                         </ItemDetails>
                       </ItemInfo>
-                      
+
                       <ItemPrice>${item.price.toFixed(2)}</ItemPrice>
-                      
+
                       <ItemQuantity>
                         <QuantityButton onClick={() => updateQuantity(item.id, item.quantity - 1)}>
                           -
@@ -643,9 +613,9 @@ const CartPage = () => {
                           +
                         </QuantityButton>
                       </ItemQuantity>
-                      
+
                       <ItemSubtotal>${(item.price * item.quantity).toFixed(2)}</ItemSubtotal>
-                      
+
                       <ItemActions>
                         <ActionButton onClick={() => moveToWishlist(item.id)}>
                           <FiHeart />
@@ -658,12 +628,12 @@ const CartPage = () => {
                   ))}
                 </CartItemsList>
               </CartItems>
-              
+
               <CartSummary>
                 <SummaryHeader>
                   <h2>Order Summary</h2>
                 </SummaryHeader>
-                
+
                 <SummaryContent>
                   <SummaryRow>
                     <span>Subtotal</span>
@@ -677,25 +647,25 @@ const CartPage = () => {
                     <span>Tax (15%)</span>
                     <span>${tax.toFixed(2)}</span>
                   </SummaryRow>
-                  
+
                   <PromoCode>
                     <PromoInput type="text" placeholder="Promo code" />
                     <PromoButton>Apply</PromoButton>
                   </PromoCode>
-                  
+
                   <SummaryRow total>
                     <span>Total</span>
                     <span>${total.toFixed(2)}</span>
                   </SummaryRow>
-                  
+
                   <CheckoutButton as={Link} to="/marketplace/checkout">
                     Proceed to Checkout
                   </CheckoutButton>
-                  
+
                   <SecureCheckout>
                     <FiLock /> Secure Checkout
                   </SecureCheckout>
-                  
+
                   <PaymentMethods>
                     <PaymentIcon>VISA</PaymentIcon>
                     <PaymentIcon>MC</PaymentIcon>
@@ -706,7 +676,7 @@ const CartPage = () => {
                 </SummaryContent>
               </CartSummary>
             </CartGrid>
-            
+
             <RelatedProducts>
               <RelatedTitle>You May Also Like</RelatedTitle>
               <RelatedGrid>
@@ -728,7 +698,7 @@ const CartPage = () => {
         )}
       </CartSection>
     </PageWrapper>
-  );
-};
+  )
+}
 
-export default CartPage;
+export default CartPage

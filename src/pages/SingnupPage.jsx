@@ -90,7 +90,7 @@ const SignupPage = ({ onClose, onSwitchToLogin }) => {
       lastName: formData.lastName,
       email: formData.email,
       password: formData.password,
-      role: formData.role === 'customer' ? 'user' : formData.role // Map 'customer' to 'user' for API
+      role: formData.role === 'customer' ? 'customer' : formData.role // Map 'customer' to 'user' for API
     };
 
     try {
