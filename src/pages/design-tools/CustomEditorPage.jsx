@@ -5,6 +5,8 @@ import { Link } from "react-router-dom"
 import styled from "styled-components"
 import { Rnd } from "react-rnd"
 import html2canvas from "html2canvas"
+import ReactCrop from "react-image-crop"
+import "react-image-crop/dist/ReactCrop.css"
 import {
   FiEdit,
   FiLayers,
@@ -39,8 +41,16 @@ import {
   FiSliders,
   FiUpload,
   FiCheck,
+  FiCrop,
+  FiDollarSign,
+  FiTag,
+  FiShield,
 } from "react-icons/fi"
 import { fonts, graphicElements } from "../../data/designAssets"
+import image1 from "../../assets/images/t-sh.jpeg"
+import image2 from "../../assets/images/hod.jpeg"
+import image3 from "../../assets/images/pant.jpeg"
+import image4 from "../../assets/images/dres1.jpg"
 
 // *** UTILITY FUNCTIONS ***
 const clamp = (num, min, max) => Math.min(Math.max(num, min), max)
@@ -367,17 +377,41 @@ const TemplateItem = styled.div`
   overflow: hidden;
   cursor: pointer;
   border: 2px solid ${(props) => (props.selected ? "#D4AF37" : "transparent")};
-  transition: all 0.3s ease;
+  transition: all 0.2s ease;
+  position: relative;
+  box-shadow: ${(props) => (props.selected ? "0 0 10px rgba(212, 175, 55, 0.5)" : "none")};
 
   &:hover {
     transform: translateY(-2px);
     box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
+    border-color: ${(props) => (props.selected ? "#D4AF37" : "rgba(212, 175, 55, 0.5)")};
+  }
+  
+  &:active {
+    transform: translateY(0);
+    box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
   }
 
   img {
     width: 100%;
     height: 100px;
     object-fit: cover;
+  }
+  
+  &:after {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background: rgba(212, 175, 55, 0.2);
+    opacity: ${(props) => (props.selected ? 0.3 : 0)};
+    transition: opacity 0.3s ease;
+  }
+  
+  &:hover:after {
+    opacity: ${(props) => (props.selected ? 0.3 : 0.1)};
   }
 `
 
@@ -580,6 +614,20 @@ const FormSelect = styled.select`
   border: 1px solid rgba(0, 0, 0, 0.2);
   border-radius: 4px;
   font-size: 0.9rem;
+
+  &:focus {
+    outline: none;
+    border-color: #D4AF37;
+  }
+`
+
+const FormTextarea = styled.textarea`
+  padding: 0.5rem;
+  border: 1px solid rgba(0, 0, 0, 0.2);
+  border-radius: 4px;
+  font-size: 0.9rem;
+  min-height: 100px;
+  resize: vertical;
 
   &:focus {
     outline: none;
@@ -998,37 +1046,106 @@ const HiddenInput = styled.input`
   display: none;
 `
 
+const CropContainer = styled.div`
+  margin-top: 1rem;
+  width: 100%;
+  
+  .ReactCrop {
+    max-height: 400px;
+    margin: 0 auto;
+  }
+`
+
+const TabsContainer = styled.div`
+  display: flex;
+  border-bottom: 1px solid rgba(0, 0, 0, 0.1);
+  margin-bottom: 1rem;
+`
+
+const Tab = styled.button`
+  padding: 0.75rem 1rem;
+  background: ${(props) => (props.active ? "rgba(212, 175, 55, 0.1)" : "transparent")};
+  border: none;
+  border-bottom: 2px solid ${(props) => (props.active ? "#D4AF37" : "transparent")};
+  cursor: pointer;
+  font-weight: ${(props) => (props.active ? "600" : "normal")};
+  transition: all 0.3s ease;
+  
+  &:hover {
+    background: rgba(0, 0, 0, 0.05);
+  }
+`
+
+const MarketplaceForm = styled.div`
+  display: flex;
+  flex-direction: column;
+  gap: 1.5rem;
+  margin-top: 1rem;
+`
+
+const PriceInput = styled.div`
+  position: relative;
+  
+  input {
+    padding-left: 1.5rem;
+  }
+  
+  svg {
+    position: absolute;
+    left: 0.5rem;
+    top: 50%;
+    transform: translateY(-50%);
+    color: rgba(0, 0, 0, 0.5);
+  }
+`
+
+const CategoryBadge = styled.div`
+  display: inline-flex;
+  align-items: center;
+  padding: 0.25rem 0.75rem;
+  background: rgba(212, 175, 55, 0.1);
+  border: 1px solid rgba(212, 175, 55, 0.3);
+  border-radius: 20px;
+  margin-right: 0.5rem;
+  margin-bottom: 0.5rem;
+  font-size: 0.875rem;
+  
+  svg {
+    margin-right: 0.25rem;
+  }
+`
+
 // *** MOCK DATA ***
 
 const templates = [
   {
     id: 1,
     name: "T-Shirt",
-    image:
-      "https://images.unsplash.com/photo-1521572163474-6864f9cf17ab?ixlib=rb-4.0.3&ixid=MnwxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8&auto=format&fit=crop&w=1480&q=80",
+    image:image1
+    ,
     template:
-      "https://purepng.com/public/uploads/large/purepng.com-white-t-shirtt-shirtfabrict-shapegramnetscotton-fabricclothing-1421526429676sil2r.png",
+      image1,
   },
   {
     id: 2,
     name: "Hoodie",
     image:
-      "https://images.unsplash.com/photo-1556821840-3a63f95609a7?ixlib=rb-4.0.3&ixid=MnwxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8&auto=format&fit=crop&w=1374&q=80",
-    template: "https://www.pngarts.com/files/3/Pullover-Hoodie-PNG-Image-Background.png",
+      image2,
+    template: image2,
   },
   {
     id: 3,
     name: "Dress",
     image:
-      "https://images.unsplash.com/photo-1595777457583-95e059d581b8?ixlib=rb-4.0.3&ixid=MnwxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8&auto=format&fit=crop&w=1483&q=80",
-    template: "https://freepngimg.com/thumb/dress/31600-6-dress-transparent-image.png",
+      image3,
+    template: image3,
   },
   {
     id: 4,
     name: "Pants",
     image:
-      "https://images.unsplash.com/photo-1624378439575-d8705ad7ae80?ixlib=rb-4.0.3&ixid=MnwxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8&auto=format&fit=crop&w=1497&q=80",
-    template: "https://www.pngall.com/wp-content/uploads/5/Pant-PNG-Free-Image.png",
+      image4,
+    template:image4,
   },
 ]
 
@@ -1074,11 +1191,25 @@ const materials = [
   },
 ]
 
+const categories = [
+  "Casual Wear",
+  "Formal Wear",
+  "Sportswear",
+  "Streetwear",
+  "Vintage",
+  "Minimalist",
+  "Bohemian",
+  "Luxury",
+  "Handmade",
+  "Sustainable",
+]
+
 // *** COMPONENT ***
 
 const CustomDesignEditorPage = () => {
   const canvasRef = useRef(null)
   const fileInputRef = useRef(null)
+  const cropImageRef = useRef(null)
   const [selectedTemplate, setSelectedTemplate] = useState(1)
   const [selectedColor, setSelectedColor] = useState(2) // Default to white
   const [selectedMaterial, setSelectedMaterial] = useState(null)
@@ -1089,8 +1220,12 @@ const CustomDesignEditorPage = () => {
   const [showPreview, setShowPreview] = useState(false)
   const [showTextEditor, setShowTextEditor] = useState(false)
   const [showImageUploader, setShowImageUploader] = useState(false)
+  const [showCropTool, setShowCropTool] = useState(false)
+  const [showMarketplaceForm, setShowMarketplaceForm] = useState(false)
+  const [showOrderForm, setShowOrderForm] = useState(false)
   const [showSuccessToast, setShowSuccessToast] = useState(false)
   const [successMessage, setSuccessMessage] = useState("")
+  const [activeTab, setActiveTab] = useState("design")
 
   // Design state
   const [designElements, setDesignElements] = useState([])
@@ -1110,6 +1245,24 @@ const CustomDesignEditorPage = () => {
   // Shape state
   const [shapeType, setShapeType] = useState("square")
   const [shapeColor, setShapeColor] = useState("#D4AF37")
+
+  // Crop state
+  const [cropImage, setCropImage] = useState(null)
+  const [crop, setCrop] = useState({ unit: "%", width: 50, height: 50, x: 25, y: 25 })
+  const [completedCrop, setCompletedCrop] = useState(null)
+  const [elementToCrop, setElementToCrop] = useState(null)
+
+  // Marketplace form state
+  const [designName, setDesignName] = useState("")
+  const [designDescription, setDesignDescription] = useState("")
+  const [designPrice, setDesignPrice] = useState("")
+  const [designCategories, setDesignCategories] = useState([])
+  const [selectedCategory, setSelectedCategory] = useState("")
+
+  // Order form state
+  const [orderSize, setOrderSize] = useState("M")
+  const [orderQuantity, setOrderQuantity] = useState(1)
+  const [orderNotes, setOrderNotes] = useState("")
 
   // Get the template data
   const templateData = templates.find((t) => t.id === selectedTemplate)
@@ -1347,8 +1500,16 @@ const CustomDesignEditorPage = () => {
 
   const handleTemplateChange = (templateId) => {
     setSelectedTemplate(templateId)
-    addHistoryAction(`Changed template to ${templates.find((t) => t.id === templateId).name}`)
-    showToast(`Template changed to ${templates.find((t) => t.id === templateId).name}!`)
+
+    // Make sure the template is immediately applied to the canvas
+    const template = templates.find((t) => t.id === templateId)
+
+    // Add a visual feedback for selection
+    addHistoryAction(`Changed template to ${template.name}`)
+    showToast(`Template changed to ${template.name}!`)
+
+    // Force a re-render of the canvas
+    setDesignElements([...designElements])
   }
 
   const handleColorChange = (colorId) => {
@@ -1468,6 +1629,162 @@ const CustomDesignEditorPage = () => {
 
   const handleDragOver = (e) => {
     e.preventDefault()
+  }
+
+  // Open crop tool for an element
+  const openCropTool = (id) => {
+    const element = designElements.find((el) => el.id === id)
+    if (element && (element.type === "image" || element.type === "graphic")) {
+      setCropImage(element.src)
+      setElementToCrop(id)
+      setShowCropTool(true)
+    }
+  }
+
+  // Apply crop to image
+  const applyCrop = () => {
+    if (!completedCrop || !cropImageRef.current) return
+
+    const canvas = document.createElement("canvas")
+    const scaleX = cropImageRef.current.naturalWidth / cropImageRef.current.width
+    const scaleY = cropImageRef.current.naturalHeight / cropImageRef.current.height
+    const ctx = canvas.getContext("2d")
+
+    canvas.width = completedCrop.width
+    canvas.height = completedCrop.height
+
+    ctx.drawImage(
+      cropImageRef.current,
+      completedCrop.x * scaleX,
+      completedCrop.y * scaleY,
+      completedCrop.width * scaleX,
+      completedCrop.height * scaleY,
+      0,
+      0,
+      completedCrop.width,
+      completedCrop.height,
+    )
+
+    const croppedImageUrl = canvas.toDataURL("image/png")
+
+    // Update the element with cropped image
+    const newElements = designElements.map((el) => (el.id === elementToCrop ? { ...el, src: croppedImageUrl } : el))
+
+    setDesignElements(newElements)
+    saveToHistory(newElements)
+    addHistoryAction("Cropped image")
+    setShowCropTool(false)
+    showToast("Image cropped successfully!")
+  }
+
+  // Add category to marketplace form
+  const addCategory = () => {
+    if (selectedCategory && !designCategories.includes(selectedCategory)) {
+      setDesignCategories([...designCategories, selectedCategory])
+      setSelectedCategory("")
+    }
+  }
+
+  // Remove category from marketplace form
+  const removeCategory = (category) => {
+    setDesignCategories(designCategories.filter((cat) => cat !== category))
+  }
+
+  // Submit design to marketplace
+  const submitToMarketplace = async () => {
+    if (!designName) {
+      alert("Please enter a name for your design")
+      return
+    }
+
+    if (!canvasRef.current) return
+
+    // Capture design as image
+    const canvas = await html2canvas(canvasRef.current, {
+      allowTaint: true,
+      useCORS: true,
+      scale: 2,
+    })
+
+    const designImage = canvas.toDataURL("image/png")
+
+    // Prepare design data
+    const designData = {
+      name: designName,
+      baseProduct: templates.find((t) => t.id === selectedTemplate).name,
+      designType: "fromScratch",
+      category: designCategories.length > 0 ? designCategories[0] : "Casual Wear",
+      description: designDescription,
+      designElements: designElements,
+      designImages: [designImage],
+      designData: {
+        template: selectedTemplate,
+        color: selectedColor,
+        material: selectedMaterial,
+      },
+      estimatedPrice: Number.parseFloat(designPrice) || 99.99,
+    }
+
+    // In a real app, this would be an API call
+    console.log("Submitting design to marketplace:", designData)
+
+    // Simulate API call
+    setTimeout(() => {
+      setShowMarketplaceForm(false)
+      showToast("Design submitted to marketplace successfully!")
+      addHistoryAction("Submitted design to marketplace")
+    }, 1500)
+  }
+
+  // Submit order
+  const submitOrder = async () => {
+    if (!canvasRef.current) return
+
+    // Capture design as image
+    const canvas = await html2canvas(canvasRef.current, {
+      allowTaint: true,
+      useCORS: true,
+      scale: 2,
+    })
+
+    const designImage = canvas.toDataURL("image/png")
+
+    // Prepare order data
+    const orderData = {
+      items: [
+        {
+          product: templates.find((t) => t.id === selectedTemplate).name,
+          customDesign: designName || "Custom Design",
+          quantity: Number.parseInt(orderQuantity),
+          price: Number.parseFloat(designPrice) || 99.99,
+          size: orderSize,
+          color: colors.find((c) => c.id === selectedColor).name,
+          customizations: {
+            material: selectedMaterial ? materials.find((m) => m.id === selectedMaterial).name : null,
+          },
+        },
+      ],
+      shippingAddress: {},
+      billingAddress: {},
+      paymentMethod: "credit_card",
+      paymentDetails: {},
+      subtotal: (Number.parseFloat(designPrice) || 99.99) * Number.parseInt(orderQuantity),
+      shippingCost: 9.99,
+      tax: (Number.parseFloat(designPrice) || 99.99) * Number.parseInt(orderQuantity) * 0.08,
+      discount: 0,
+      totalAmount: (Number.parseFloat(designPrice) || 99.99) * Number.parseInt(orderQuantity) * 1.08 + 9.99,
+      notes: orderNotes,
+    }
+
+    // In a real app, this would be an API call
+    console.log("Submitting order:", orderData)
+
+    // Simulate API call
+    setTimeout(() => {
+      setShowOrderForm(false)
+      showToast("Order submitted successfully!")
+      addHistoryAction("Submitted order")
+    }, 1500)
   }
 
   // Render design elements
@@ -1699,8 +2016,11 @@ const CustomDesignEditorPage = () => {
           <ActionButton onClick={handleExportDesign}>
             <FiDownload /> <span>Export</span>
           </ActionButton>
-          <ActionButton>
+          <ActionButton onClick={() => setShowOrderForm(true)}>
             <FiShoppingBag /> <span>Order</span>
+          </ActionButton>
+          <ActionButton onClick={() => setShowMarketplaceForm(true)}>
+            <FiTag /> <span>Sell</span>
           </ActionButton>
           <MobileMenuButton onClick={() => setRightPanelOpen(!rightPanelOpen)}>
             <FiGrid />
@@ -1720,8 +2040,24 @@ const CustomDesignEditorPage = () => {
                   key={template.id}
                   selected={selectedTemplate === template.id}
                   onClick={() => handleTemplateChange(template.id)}
+                  title={`Select ${template.name} template`}
                 >
-                  <img src={template.image || "/placeholder.svg"} alt={template.name} />
+                  <img src={template.image || "/placeholder.svg"} alt={template.name} loading="eager" />
+                  <div
+                    style={{
+                      position: "absolute",
+                      bottom: 0,
+                      left: 0,
+                      right: 0,
+                      background: "rgba(0,0,0,0.7)",
+                      color: "white",
+                      padding: "4px",
+                      fontSize: "0.8rem",
+                      textAlign: "center",
+                    }}
+                  >
+                    {template.name}
+                  </div>
                 </TemplateItem>
               ))}
             </TemplateGrid>
@@ -1873,6 +2209,22 @@ const CustomDesignEditorPage = () => {
               title="Duplicate Element"
             >
               <FiCopy />
+            </CanvasControlButton>
+            <CanvasControlButton
+              onClick={() => {
+                if (selectedElement) {
+                  const element = designElements.find((el) => el.id === selectedElement)
+                  if (element && (element.type === "image" || element.type === "graphic")) {
+                    openCropTool(selectedElement)
+                  }
+                }
+              }}
+              disabled={
+                !selectedElement || !designElements.find((el) => el.id === selectedElement)?.type.match(/image|graphic/)
+              }
+              title="Crop Image"
+            >
+              <FiCrop />
             </CanvasControlButton>
             <CanvasControlButton
               onClick={() => {
@@ -2291,6 +2643,9 @@ const CustomDesignEditorPage = () => {
                             <span>360°</span>
                           </RangeValues>
                         </FormGroup>
+                        <ActionButton style={{ marginTop: "0.5rem" }} onClick={() => openCropTool(element.id)}>
+                          <FiCrop /> Crop Image
+                        </ActionButton>
                       </>
                     )
                   }
@@ -2476,6 +2831,44 @@ const CustomDesignEditorPage = () => {
         </Modal>
       )}
 
+      {showCropTool && (
+        <Modal onClick={() => setShowCropTool(false)}>
+          <ModalContent onClick={(e) => e.stopPropagation()}>
+            <ModalHeader>
+              <h2>Crop Image</h2>
+              <CloseButton onClick={() => setShowCropTool(false)}>
+                <FiX />
+              </CloseButton>
+            </ModalHeader>
+            <CropContainer>
+              <ReactCrop
+                src={cropImage}
+                crop={crop}
+                onChange={(newCrop) => setCrop(newCrop)}
+                onComplete={(c) => setCompletedCrop(c)}
+              >
+                <img
+                  ref={cropImageRef}
+                  src={cropImage || "/placeholder.svg"}
+                  alt="Crop preview"
+                  style={{ maxWidth: "100%" }}
+                  crossOrigin="anonymous"
+                />
+              </ReactCrop>
+            </CropContainer>
+            <ButtonGroup style={{ marginTop: "1.5rem" }}>
+              <ActionButton onClick={() => setShowCropTool(false)}>Cancel</ActionButton>
+              <ActionButton
+                onClick={applyCrop}
+                style={{ backgroundColor: "#D4AF37", color: "white", borderColor: "#D4AF37" }}
+              >
+                Apply Crop
+              </ActionButton>
+            </ButtonGroup>
+          </ModalContent>
+        </Modal>
+      )}
+
       {showPreview && (
         <Modal onClick={() => setShowPreview(false)}>
           <ModalContent onClick={(e) => e.stopPropagation()}>
@@ -2498,11 +2891,257 @@ const CustomDesignEditorPage = () => {
                 <ActionButton onClick={handleExportDesign}>
                   <FiDownload /> Download Design
                 </ActionButton>
-                <ActionButton style={{ backgroundColor: "#D4AF37", color: "white", borderColor: "#D4AF37" }}>
-                  <FiShoppingBag /> Add to Cart
+                <ActionButton onClick={() => setShowOrderForm(true)}>
+                  <FiShoppingBag /> Order Now
+                </ActionButton>
+                <ActionButton onClick={() => setShowMarketplaceForm(true)}>
+                  <FiTag /> Sell Design
                 </ActionButton>
               </ButtonGroup>
             </PreviewContainer>
+          </ModalContent>
+        </Modal>
+      )}
+
+      {showMarketplaceForm && (
+        <Modal onClick={() => setShowMarketplaceForm(false)}>
+          <ModalContent onClick={(e) => e.stopPropagation()}>
+            <ModalHeader>
+              <h2>Sell Your Design</h2>
+              <CloseButton onClick={() => setShowMarketplaceForm(false)}>
+                <FiX />
+              </CloseButton>
+            </ModalHeader>
+            <TabsContainer>
+              <Tab active={activeTab === "design"} onClick={() => setActiveTab("design")}>
+                Design Info
+              </Tab>
+              <Tab active={activeTab === "pricing"} onClick={() => setActiveTab("pricing")}>
+                Pricing
+              </Tab>
+            </TabsContainer>
+
+            {activeTab === "design" && (
+              <MarketplaceForm>
+                <FormGroup>
+                  <FormLabel>Design Name</FormLabel>
+                  <FormInput
+                    type="text"
+                    placeholder="Enter a catchy name for your design"
+                    value={designName}
+                    onChange={(e) => setDesignName(e.target.value)}
+                  />
+                </FormGroup>
+                <FormGroup>
+                  <FormLabel>Description</FormLabel>
+                  <FormTextarea
+                    placeholder="Describe your design, inspiration, and what makes it special"
+                    value={designDescription}
+                    onChange={(e) => setDesignDescription(e.target.value)}
+                  />
+                </FormGroup>
+                <FormGroup>
+                  <FormLabel>Categories</FormLabel>
+                  <div style={{ display: "flex", flexWrap: "wrap", marginBottom: "0.5rem" }}>
+                    {designCategories.map((category) => (
+                      <CategoryBadge key={category}>
+                        {category}
+                        <FiX
+                          style={{ marginLeft: "0.25rem", cursor: "pointer" }}
+                          onClick={() => removeCategory(category)}
+                        />
+                      </CategoryBadge>
+                    ))}
+                  </div>
+                  <div style={{ display: "flex", gap: "0.5rem" }}>
+                    <FormSelect
+                      value={selectedCategory}
+                      onChange={(e) => setSelectedCategory(e.target.value)}
+                      style={{ flex: 1 }}
+                    >
+                      <option value="">Select a category</option>
+                      {categories.map((category) => (
+                        <option key={category} value={category}>
+                          {category}
+                        </option>
+                      ))}
+                    </FormSelect>
+                    <ActionButton onClick={addCategory} disabled={!selectedCategory}>
+                      Add
+                    </ActionButton>
+                  </div>
+                </FormGroup>
+                <ActionButton
+                  onClick={() => setActiveTab("pricing")}
+                  style={{ backgroundColor: "#D4AF37", color: "white", borderColor: "#D4AF37" }}
+                >
+                  Continue to Pricing
+                </ActionButton>
+              </MarketplaceForm>
+            )}
+
+            {activeTab === "pricing" && (
+              <MarketplaceForm>
+                <FormGroup>
+                  <FormLabel>Price (USD)</FormLabel>
+                  <PriceInput>
+                    <FiDollarSign />
+                    <FormInput
+                      type="number"
+                      placeholder="99.99"
+                      value={designPrice}
+                      onChange={(e) => setDesignPrice(e.target.value)}
+                      min="0"
+                      step="0.01"
+                    />
+                  </PriceInput>
+                </FormGroup>
+                <div
+                  style={{
+                    padding: "1rem",
+                    background: "rgba(212, 175, 55, 0.1)",
+                    borderRadius: "4px",
+                    marginBottom: "1rem",
+                  }}
+                >
+                  <div style={{ display: "flex", alignItems: "center", marginBottom: "0.5rem" }}>
+                    <FiShield style={{ color: "#D4AF37", marginRight: "0.5rem" }} />
+                    <strong>Seller Protection</strong>
+                  </div>
+                  <p style={{ fontSize: "0.9rem", margin: 0 }}>
+                    Your design will be protected with watermarks in the marketplace preview. Buyers will only receive
+                    the full design after purchase.
+                  </p>
+                </div>
+                <ButtonGroup>
+                  <ActionButton onClick={() => setActiveTab("design")}>Back to Design Info</ActionButton>
+                  <ActionButton
+                    onClick={submitToMarketplace}
+                    style={{ backgroundColor: "#D4AF37", color: "white", borderColor: "#D4AF37" }}
+                  >
+                    Submit to Marketplace
+                  </ActionButton>
+                </ButtonGroup>
+              </MarketplaceForm>
+            )}
+          </ModalContent>
+        </Modal>
+      )}
+
+      {showOrderForm && (
+        <Modal onClick={() => setShowOrderForm(false)}>
+          <ModalContent onClick={(e) => e.stopPropagation()}>
+            <ModalHeader>
+              <h2>Order Your Custom Design</h2>
+              <CloseButton onClick={() => setShowOrderForm(false)}>
+                <FiX />
+              </CloseButton>
+            </ModalHeader>
+            <MarketplaceForm>
+              <FormGroup>
+                <FormLabel>Size</FormLabel>
+                <FormSelect value={orderSize} onChange={(e) => setOrderSize(e.target.value)}>
+                  <option value="XS">XS</option>
+                  <option value="S">S</option>
+                  <option value="M">M</option>
+                  <option value="L">L</option>
+                  <option value="XL">XL</option>
+                  <option value="XXL">XXL</option>
+                </FormSelect>
+              </FormGroup>
+              <FormGroup>
+                <FormLabel>Quantity</FormLabel>
+                <FormInput
+                  type="number"
+                  value={orderQuantity}
+                  onChange={(e) => setOrderQuantity(e.target.value)}
+                  min="1"
+                />
+              </FormGroup>
+              <FormGroup>
+                <FormLabel>Special Instructions (Optional)</FormLabel>
+                <FormTextarea
+                  placeholder="Any special requests or notes for your order"
+                  value={orderNotes}
+                  onChange={(e) => setOrderNotes(e.target.value)}
+                />
+              </FormGroup>
+              <div
+                style={{
+                  padding: "1rem",
+                  background: "rgba(76, 175, 80, 0.1)",
+                  borderRadius: "4px",
+                  marginBottom: "1rem",
+                  border: "1px solid rgba(76, 175, 80, 0.3)",
+                }}
+              >
+                <div style={{ display: "flex", justifyContent: "space-between", marginBottom: "0.5rem" }}>
+                  <span>Product:</span>
+                  <strong>{templates.find((t) => t.id === selectedTemplate).name}</strong>
+                </div>
+                <div style={{ display: "flex", justifyContent: "space-between", marginBottom: "0.5rem" }}>
+                  <span>Color:</span>
+                  <strong>{colors.find((c) => c.id === selectedColor).name}</strong>
+                </div>
+                <div style={{ display: "flex", justifyContent: "space-between", marginBottom: "0.5rem" }}>
+                  <span>Material:</span>
+                  <strong>
+                    {selectedMaterial ? materials.find((m) => m.id === selectedMaterial).name : "Standard"}
+                  </strong>
+                </div>
+                <div style={{ display: "flex", justifyContent: "space-between", marginBottom: "0.5rem" }}>
+                  <span>Price per item:</span>
+                  <strong>${Number.parseFloat(designPrice || 99.99).toFixed(2)}</strong>
+                </div>
+                <div style={{ display: "flex", justifyContent: "space-between", marginBottom: "0.5rem" }}>
+                  <span>Quantity:</span>
+                  <strong>{orderQuantity}</strong>
+                </div>
+                <div style={{ display: "flex", justifyContent: "space-between", marginBottom: "0.5rem" }}>
+                  <span>Subtotal:</span>
+                  <strong>
+                    ${(Number.parseFloat(designPrice || 99.99) * Number.parseInt(orderQuantity)).toFixed(2)}
+                  </strong>
+                </div>
+                <div style={{ display: "flex", justifyContent: "space-between", marginBottom: "0.5rem" }}>
+                  <span>Shipping:</span>
+                  <strong>$9.99</strong>
+                </div>
+                <div style={{ display: "flex", justifyContent: "space-between", marginBottom: "0.5rem" }}>
+                  <span>Tax:</span>
+                  <strong>
+                    ${(Number.parseFloat(designPrice || 99.99) * Number.parseInt(orderQuantity) * 0.08).toFixed(2)}
+                  </strong>
+                </div>
+                <div
+                  style={{
+                    display: "flex",
+                    justifyContent: "space-between",
+                    marginTop: "1rem",
+                    paddingTop: "1rem",
+                    borderTop: "1px solid rgba(76, 175, 80, 0.3)",
+                    fontWeight: "bold",
+                  }}
+                >
+                  <span>Total:</span>
+                  <strong>
+                    $
+                    {(Number.parseFloat(designPrice || 99.99) * Number.parseInt(orderQuantity) * 1.08 + 9.99).toFixed(
+                      2,
+                    )}
+                  </strong>
+                </div>
+              </div>
+              <ButtonGroup>
+                <ActionButton onClick={() => setShowOrderForm(false)}>Cancel</ActionButton>
+                <ActionButton
+                  onClick={submitOrder}
+                  style={{ backgroundColor: "#D4AF37", color: "white", borderColor: "#D4AF37" }}
+                >
+                  Place Order
+                </ActionButton>
+              </ButtonGroup>
+            </MarketplaceForm>
           </ModalContent>
         </Modal>
       )}

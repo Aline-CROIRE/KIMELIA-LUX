@@ -1,36 +1,16 @@
 "use client"
 
-import { useState, useEffect, useRef, Suspense } from "react"
-import axios from "axios"
+import { useState, useEffect, useRef } from "react"
 import styled from "styled-components"
-import { Canvas } from "@react-three/fiber"
-import { OrbitControls, useGLTF, Environment, Html } from "@react-three/drei"
-import {
-  FiUpload,
-  FiCamera,
-  FiRotateCw,
-  FiCheck,
-  FiArrowRight,
-  FiInfo,
-  FiX,
-  FiMaximize,
-  FiSliders,
-  FiUser,
-  FiShoppingCart,
-  FiHeart,
-} from "react-icons/fi"
+import { Camera, Upload, User, Check, ArrowRight, RefreshCw, X, Info, ShoppingCart, Heart } from "lucide-react"
 
-import placeholderImage300x200 from '../../assets/images/dres1.jpg' ; // Adjust path as needed
-import placeholderImage600x400 from '../../assets/images/dres2.jpeg'; // Adjust path as needed
-
-
-const fallbackGarments = [
+// Fallback product data in case API fails
+const fallbackProducts = [
   {
     id: "1",
     name: "Elegant Evening Gown",
     price: 299.99,
-    image: placeholderImage300x200, // Use imported variable
-    overlayImage: placeholderImage600x400, // Use imported variable
+    image: "/placeholder.svg?height=300&width=200",
     category: "Dresses",
     sizes: ["XS", "S", "M", "L", "XL"],
     colors: ["#000", "#000080", "#800020", "#50C878"],
@@ -40,14 +20,12 @@ const fallbackGarments = [
     skinTones: ["fair", "medium", "olive", "dark"],
     fabricType: "silk",
     stretchFactor: "low",
-    overlayPosition: { x: 0, y: 0.25, width: 0.8, height: 0.6 },
   },
   {
-    id: "P002",
+    id: "2",
     name: "Tailored Business Suit",
     price: 399.99,
-    image: placeholderImage300x200, // Use imported variable
-    overlayImage: placeholderImage600x400, // Use imported variable
+    image: "/placeholder.svg?height=300&width=200",
     category: "Suits",
     sizes: ["XS", "S", "M", "L", "XL"],
     colors: ["#000", "#000080", "#808080", "#8B4513"],
@@ -56,14 +34,12 @@ const fallbackGarments = [
     skinTones: ["all"],
     fabricType: "wool",
     stretchFactor: "low",
-    overlayPosition: { x: 0, y: 0.2, width: 0.8, height: 0.7 },
   },
   {
-    id: "P003",
+    id: "3",
     name: "Summer Collection Blouse",
     price: 89.99,
-    image: placeholderImage300x200, // Use imported variable
-    overlayImage: placeholderImage600x400, // Use imported variable
+    image: "/placeholder.svg?height=300&width=200",
     category: "Tops",
     sizes: ["XS", "S", "M", "L", "XL"],
     colors: ["#FFB6C1", "#98FB98", "#87CEEB", "#FFFACD"],
@@ -72,14 +48,12 @@ const fallbackGarments = [
     skinTones: ["fair", "medium", "olive"],
     fabricType: "cotton blend",
     stretchFactor: "medium",
-    overlayPosition: { x: 0, y: 0.15, width: 0.8, height: 0.4 },
   },
   {
-    id: "P004",
+    id: "4",
     name: "Handcrafted Leather Jacket",
     price: 499.99,
-    image: placeholderImage300x200, // Use imported variable
-    overlayImage: placeholderImage600x400, // Use imported variable
+    image: "/placeholder.svg?height=300&width=200",
     category: "Outerwear",
     sizes: ["XS", "S", "M", "L", "XL"],
     colors: ["#000", "#8B4513", "#A52A2A", "#708090"],
@@ -88,14 +62,12 @@ const fallbackGarments = [
     skinTones: ["all"],
     fabricType: "leather",
     stretchFactor: "low",
-    overlayPosition: { x: 0, y: 0.15, width: 0.8, height: 0.5 },
   },
   {
-    id: "P005",
+    id: "5",
     name: "Casual Denim Collection",
     price: 129.99,
-    image: placeholderImage300x200, // Use imported variable
-    overlayImage: placeholderImage600x400, // Use imported variable
+    image: "/placeholder.svg?height=300&width=200",
     category: "Jeans",
     sizes: ["XS", "S", "M", "L", "XL"],
     colors: ["#000080", "#4169E1", "#000", "#708090"],
@@ -104,115 +76,14 @@ const fallbackGarments = [
     skinTones: ["all"],
     fabricType: "denim",
     stretchFactor: "medium",
-    overlayPosition: { x: 0, y: 0.5, width: 0.8, height: 0.5 },
   },
-];
-// Standard size measurements in inches for reference
-const standardSizeMeasurements = {
-  XS: { bust: 32, waist: 25, hips: 35, inseam: 30 },
-  S: { bust: 34, waist: 27, hips: 37, inseam: 30.5 },
-  M: { bust: 36, waist: 29, hips: 39, inseam: 31 },
-  L: { bust: 38, waist: 31, hips: 41, inseam: 31.5 },
-  XL: { bust: 40, waist: 33, hips: 43, inseam: 32 },
-}
+]
 
-// Skin tone color palette for recommendations
-const skinToneColorPalettes = {
-  fair: {
-    recommended: ["#000", "#000080", "#800020", "#008000", "#4B0082"],
-    avoid: ["#FFFF00", "#FFA500", "#FFD700"],
-  },
-  medium: {
-    recommended: ["#000080", "#800020", "#008000", "#4B0082", "#A52A2A"],
-    avoid: ["#F0E68C", "#FAFAD2"],
-  },
-  olive: {
-    recommended: ["#800020", "#A52A2A", "#008000", "#000080", "#4B0082"],
-    avoid: ["#FF69B4", "#FF1493"],
-  },
-  dark: {
-    recommended: ["#FFFFFF", "#FFD700", "#FF0000", "#00FF00", "#00FFFF"],
-    avoid: ["#000000", "#A52A2A", "#800000"],
-  },
-}
-
-// 3D Model component for clothing
-const ClothingModel = ({ modelPath, color, position = [0, 0, 0], scale = 1, rotation = [0, 0, 0] }) => {
-  const { scene } = useGLTF(modelPath)
-
-  // Clone the scene to avoid modifying the cached original
-  const model = scene.clone()
-
-  // Apply color to all meshes in the model
-  model.traverse((node) => {
-    if (node.isMesh && node.material) {
-      node.material = node.material.clone()
-      if (color) {
-        node.material.color.set(color)
-      }
-    }
-  })
-
-  return <primitive object={model} position={position} scale={scale} rotation={rotation} />
-}
-
-// Human Model component that will wear the clothes
-const HumanModel = ({ userPhoto, position = [0, 0, 0], scale = 1 }) => {
-  // Use a default human model
-  const { scene } = useGLTF("/assets/3d/duck.glb") // Using duck as placeholder, replace with human model
-
-  // If user photo is provided, we'll use it as a texture on a plane behind the model
-  // This is a simplified approach - a real implementation would map the photo to the model
-  return (
-    <group position={position} scale={scale}>
-      <primitive object={scene} />
-      {userPhoto && (
-        <mesh position={[0, 0, -0.5]} rotation={[0, Math.PI, 0]}>
-          <planeGeometry args={[2, 3]} />
-          <meshBasicMaterial>
-            <Html transform position={[0, 0, 0.1]} scale={0.1} sprite>
-              <div style={{ width: "500px", height: "800px", overflow: "hidden" }}>
-                <img
-                  src={userPhoto || "/placeholder.svg"}
-                  alt="User"
-                  style={{ width: "100%", height: "100%", objectFit: "cover" }}
-                />
-              </div>
-            </Html>
-          </meshBasicMaterial>
-        </mesh>
-      )}
-    </group>
-  )
-}
-
-// 3D Scene component for the virtual try-on
-const TryOnScene = ({ userPhoto, selectedGarment, selectedColor }) => {
-  return (
-    <Canvas camera={{ position: [0, 0, 5], fov: 50 }}>
-      <ambientLight intensity={0.5} />
-      <pointLight position={[10, 10, 10]} intensity={1} />
-      <Suspense fallback={<Html center>Loading 3D models...</Html>}>
-        <HumanModel userPhoto={userPhoto} position={[0, -1, 0]} scale={1} />
-        {selectedGarment && (
-          <ClothingModel
-            modelPath={selectedGarment.model3d || "/assets/3d/duck.glb"}
-            color={selectedColor}
-            position={[0, -1, 0]}
-            scale={1}
-          />
-        )}
-        <Environment preset="studio" />
-        <OrbitControls enablePan={false} enableZoom={true} minPolarAngle={Math.PI / 4} maxPolarAngle={Math.PI / 1.5} />
-      </Suspense>
-    </Canvas>
-  )
-}
-
+// Main component
 const VirtualFittingRoom = () => {
   // State for the multi-step process
   const [activeStep, setActiveStep] = useState(1)
-  const [inputMethod, setInputMethod] = useState("photo") // "photo" or "measurements"
+  const [inputMethod, setInputMethod] = useState("measurements") // "photo" or "measurements"
 
   // User data states
   const [userPhoto, setUserPhoto] = useState(null)
@@ -228,21 +99,18 @@ const VirtualFittingRoom = () => {
   const [userSkinTone, setUserSkinTone] = useState("")
 
   // Product selection states
-  const [garments, setGarments] = useState([])
+  const [products, setProducts] = useState([])
   const [categories, setCategories] = useState([])
   const [activeCategory, setActiveCategory] = useState("All")
-  const [selectedGarment, setSelectedGarment] = useState(null)
-  const [selectedGarmentDetails, setSelectedGarmentDetails] = useState(null)
+  const [selectedProduct, setSelectedProduct] = useState(null)
+  const [selectedProductDetails, setSelectedProductDetails] = useState(null)
   const [selectedSize, setSelectedSize] = useState("M")
   const [selectedColor, setSelectedColor] = useState("")
 
   // UI states
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState(null)
-  const [tryOnLoading, setTryOnLoading] = useState(false)
-  const [tryOnError, setTryOnError] = useState(null)
   const [fitAnalysis, setFitAnalysis] = useState(null)
-  const [colorAnalysis, setColorAnalysis] = useState(null)
 
   // Camera states
   const [cameraActive, setCameraActive] = useState(false)
@@ -254,69 +122,105 @@ const VirtualFittingRoom = () => {
   const [stream, setStream] = useState(null)
   const [isFrontCamera, setIsFrontCamera] = useState(true)
 
-  // Fetch garments from the API
+  // Standard size measurements in inches for reference
+  const standardSizeMeasurements = {
+    XS: { bust: 32, waist: 25, hips: 35, inseam: 30 },
+    S: { bust: 34, waist: 27, hips: 37, inseam: 30.5 },
+    M: { bust: 36, waist: 29, hips: 39, inseam: 31 },
+    L: { bust: 38, waist: 31, hips: 41, inseam: 31.5 },
+    XL: { bust: 40, waist: 33, hips: 43, inseam: 32 },
+  }
+
+  // Fetch products from the API
   useEffect(() => {
-    const fetchGarments = async () => {
+    const fetchProducts = async () => {
       setLoading(true)
       try {
-        // Try to get products from API
         try {
-          const response = await axios.get("http://localhost:5005/api/products")
-          console.log("API Response:", response.data)
+          const response = await fetch("http://localhost:5005/api/products")
 
-          if (response.data && Array.isArray(response.data)) {
+          if (!response.ok) {
+            throw new Error(`API request failed with status ${response.status}`)
+          }
+
+          const data = await response.json()
+          console.log("API response data:", data)
+
+          // More flexible handling of API data
+          if (data) {
+            // Handle array format
+            const productsArray = Array.isArray(data)
+              ? data
+              : // Handle object with products array property
+                data.products && Array.isArray(data.products)
+                ? data.products
+                : // Handle object with items array property
+                  data.items && Array.isArray(data.items)
+                  ? data.items
+                  : // Handle object with data array property
+                    data.data && Array.isArray(data.data)
+                    ? data.data
+                    : // Handle single product object
+                      !Array.isArray(data) && typeof data === "object"
+                      ? [data]
+                      : // Fallback
+                        []
+
             // Transform the API data to match our component's expected format
-            const formattedGarments = response.data.map((item) => ({
-              id: item._id || item.id,
-              name: item.name,
-              price: item.price,
-              image: item.images && item.images.length > 0 ? item.images[0] : "/placeholder.svg?height=300&width=200",
-              model3d: item.model3d || "/assets/3d/duck.glb", // Default 3D model if not provided
-              category: item.category || "Uncategorized",
+            const formattedProducts = productsArray.map((item) => ({
+              id: item._id || item.id || Math.random().toString(36).substr(2, 9),
+              name: item.name || item.title || "Unnamed Product",
+              price: item.price || 0,
+              image:
+                item.images && item.images.length > 0
+                  ? item.images[0]
+                  : item.image || item.thumbnail || item.photo || "/placeholder.svg?height=300&width=200",
+              category: item.category || item.type || "Uncategorized",
               sizes: item.sizes || ["XS", "S", "M", "L", "XL"],
               colors: item.colors || ["#000", "#000080", "#800020", "#50C878"],
               description: item.description || "No description available",
               bodyTypes: item.bodyTypes || ["all"],
               skinTones: item.skinTones || ["all"],
-              fabricType: item.fabricType || "unknown",
-              stretchFactor: item.stretchFactor || "medium",
+              fabricType: item.fabricType || item.fabric || "unknown",
+              stretchFactor: item.stretchFactor || item.stretch || "medium",
             }))
 
-            setGarments(formattedGarments)
+            console.log("Formatted products:", formattedProducts)
+            setProducts(formattedProducts)
 
             // Extract unique categories
-            const uniqueCategories = ["All", ...new Set(formattedGarments.map((item) => item.category))]
+            const uniqueCategories = ["All", ...new Set(formattedProducts.map((item) => item.category))]
             setCategories(uniqueCategories)
-
-            // Ensure we're showing all products initially
-            setActiveCategory("All")
           } else {
-            console.log("Invalid API response format, using fallback data")
-            // Use fallback data if API response is not in expected format
-            setGarments(fallbackGarments)
-            setCategories(["All", "Dresses", "Suits", "Tops", "Outerwear", "Jeans"])
+            console.log("Empty API response, using fallback data")
+            throw new Error("Empty API response")
           }
         } catch (err) {
-          console.error("Error fetching garments from API:", err)
+          console.error("Error fetching products from API:", err)
           // Use fallback data if API fails
-          console.log("Using fallback garment data due to API error")
-          setGarments(fallbackGarments)
-          setCategories(["All", "Dresses", "Suits", "Tops", "Outerwear", "Jeans"])
+          console.log("Using fallback product data due to API error")
+          setProducts(fallbackProducts)
+
+          // Extract unique categories from fallback data
+          const uniqueCategories = ["All", ...new Set(fallbackProducts.map((item) => item.category))]
+          setCategories(uniqueCategories)
         }
       } catch (err) {
-        console.error("Error in fetchGarments:", err)
-        setError("Failed to load garments. Please try again later.")
+        console.error("Error in fetchProducts:", err)
+        setError("Failed to load products. Please try again later.")
 
-        // Fallback to mock data if everything fails
-        console.log("Using fallback garment data due to error")
-        setGarments(fallbackGarments)
-        setCategories(["All", "Dresses", "Suits", "Tops", "Outerwear", "Jeans"])
+        // Ensure we have fallback data even if everything fails
+        if (products.length === 0) {
+          setProducts(fallbackProducts)
+          const uniqueCategories = ["All", ...new Set(fallbackProducts.map((item) => item.category))]
+          setCategories(uniqueCategories)
+        }
       } finally {
         setLoading(false)
       }
     }
 
-    fetchGarments()
+    fetchProducts()
   }, [])
 
   // Clean up camera resources when component unmounts
@@ -519,13 +423,12 @@ const VirtualFittingRoom = () => {
     const file = e.target.files[0]
     if (!file) return
 
-    // Validate file size
+    // Validate file size and type
     if (file.size > 10 * 1024 * 1024) {
       alert("File is too large. Maximum size is 10MB.")
       return
     }
 
-    // Validate file type
     if (!file.type.startsWith("image/")) {
       alert("Only image files are allowed.")
       return
@@ -552,13 +455,12 @@ const VirtualFittingRoom = () => {
     const file = e.dataTransfer.files[0]
     if (!file) return
 
-    // Validate file size
+    // Validate file size and type
     if (file.size > 10 * 1024 * 1024) {
       alert("File is too large. Maximum size is 10MB.")
       return
     }
 
-    // Validate file type
     if (!file.type.startsWith("image/")) {
       alert("Only image files are allowed.")
       return
@@ -591,14 +493,14 @@ const VirtualFittingRoom = () => {
     setUserSkinTone(tone)
   }
 
-  // Handle garment selection
-  const handleGarmentSelect = (id) => {
-    const garment = garments.find((g) => g.id === id)
-    setSelectedGarment(id)
-    setSelectedGarmentDetails(garment)
+  // Handle product selection
+  const handleProductSelect = (id) => {
+    const product = products.find((p) => p.id === id)
+    setSelectedProduct(id)
+    setSelectedProductDetails(product)
 
-    if (garment && garment.colors && garment.colors.length > 0) {
-      setSelectedColor(garment.colors[0])
+    if (product && product.colors && product.colors.length > 0) {
+      setSelectedColor(product.colors[0])
     }
   }
 
@@ -615,11 +517,6 @@ const VirtualFittingRoom = () => {
   // Handle color selection
   const handleColorSelect = (color) => {
     setSelectedColor(color)
-
-    // Update color analysis when color changes
-    if (userSkinTone) {
-      analyzeColorMatch(color)
-    }
   }
 
   // Handle category selection
@@ -636,9 +533,9 @@ const VirtualFittingRoom = () => {
     const standardSize = standardSizeMeasurements[size]
 
     // Calculate fit percentage for each measurement
-    const bustFit = calculateFitPercentage(Number.parseFloat(userMeasurements.bust), standardSize.bust)
-    const waistFit = calculateFitPercentage(Number.parseFloat(userMeasurements.waist), standardSize.waist)
-    const hipsFit = calculateFitPercentage(Number.parseFloat(userMeasurements.hips), standardSize.hips)
+    const bustFit = calculateFitPercentage(Number(userMeasurements.bust), standardSize.bust)
+    const waistFit = calculateFitPercentage(Number(userMeasurements.waist), standardSize.waist)
+    const hipsFit = calculateFitPercentage(Number(userMeasurements.hips), standardSize.hips)
 
     // Calculate overall fit score (0-100)
     const overallFit = Math.round((bustFit + waistFit + hipsFit) / 3)
@@ -710,139 +607,6 @@ const VirtualFittingRoom = () => {
     }
   }
 
-  // Analyze if the selected color matches the user's skin tone
-  const analyzeColorMatch = (color) => {
-    if (!userSkinTone || userSkinTone === "") {
-      return
-    }
-
-    const palette = skinToneColorPalettes[userSkinTone] || skinToneColorPalettes["medium"]
-
-    // Check if color is in recommended or avoid lists
-    const isRecommended = palette.recommended.includes(color)
-    const shouldAvoid = palette.avoid.includes(color)
-
-    let matchScore = 0
-    let matchMessage = ""
-
-    if (isRecommended) {
-      matchScore = 90
-      matchMessage = `This color complements your ${userSkinTone} skin tone beautifully.`
-    } else if (shouldAvoid) {
-      matchScore = 30
-      matchMessage = `This color may not be the most flattering for your ${userSkinTone} skin tone.`
-    } else {
-      matchScore = 60
-      matchMessage = `This color is a neutral choice for your ${userSkinTone} skin tone.`
-    }
-
-    setColorAnalysis({
-      matchScore,
-      matchMessage,
-      isRecommended,
-      shouldAvoid,
-    })
-  }
-
-  // Process virtual try-on
-  const handleTryOn = async () => {
-    if ((!userPhoto && inputMethod === "photo") || !selectedGarment) {
-      alert("Please provide a photo and select a garment first")
-      return
-    }
-
-    setTryOnLoading(true)
-    setTryOnError(null)
-
-    try {
-      // Get selected garment details
-      const garmentDetails = garments.find((g) => g.id === selectedGarment)
-
-      if (!garmentDetails) {
-        throw new Error("Selected garment not found")
-      }
-
-      // Set the selected garment details for the 3D model
-      setSelectedGarmentDetails(garmentDetails)
-
-      // If we're using measurements, analyze the fit
-      if (inputMethod === "measurements") {
-        analyzeFit(selectedSize)
-      }
-
-      // Analyze color match with skin tone
-      if (userSkinTone) {
-        analyzeColorMatch(selectedColor)
-      }
-    } catch (err) {
-      console.error("Error processing try-on:", err)
-      setTryOnError("Failed to process virtual try-on. Please try again.")
-
-      // Generate mock fit and color analysis for demo
-      if (inputMethod === "measurements") {
-        setFitAnalysis({
-          overallFit: 65,
-          fitPosition: 65,
-          fitMessage: "This size appears to be a good fit based on your measurements, with a slightly relaxed fit.",
-          details: {
-            bust: 70,
-            waist: 60,
-            hips: 65,
-          },
-        })
-      }
-
-      if (userSkinTone) {
-        setColorAnalysis({
-          matchScore: 75,
-          matchMessage: `This color generally works well with your ${userSkinTone} skin tone.`,
-          isRecommended: true,
-          shouldAvoid: false,
-        })
-      }
-    } finally {
-      setTryOnLoading(false)
-    }
-  }
-
-  // Handle adding item to cart
-  const handleAddToCart = async () => {
-    if (!selectedGarment) return
-
-    try {
-      await axios.post("http://localhost:5005/api/cart", {
-        garmentId: selectedGarment,
-        size: selectedSize,
-        color: selectedColor,
-        quantity: 1,
-      })
-
-      alert("Item added to cart successfully!")
-    } catch (err) {
-      console.error("Error adding to cart:", err)
-      alert("Failed to add item to cart. Please try again.")
-    }
-  }
-
-  // Handle saving design
-  const handleSaveDesign = async () => {
-    if (!selectedGarment) return
-
-    try {
-      await axios.post("http://localhost:5005/api/custom-designs", {
-        garmentId: selectedGarment,
-        size: selectedSize,
-        color: selectedColor,
-        userMeasurements: inputMethod === "measurements" ? userMeasurements : null,
-      })
-
-      alert("Design saved successfully!")
-    } catch (err) {
-      console.error("Error saving design:", err)
-      alert("Failed to save design. Please try again.")
-    }
-  }
-
   // Handle navigation between steps
   const handleNextStep = () => {
     if (activeStep === 1) {
@@ -861,13 +625,16 @@ const VirtualFittingRoom = () => {
       }
     }
 
-    if (activeStep === 2 && !selectedGarment) {
-      alert("Please select a garment first")
+    if (activeStep === 2 && !selectedProduct) {
+      alert("Please select a product first")
       return
     }
 
     if (activeStep === 2) {
-      handleTryOn()
+      // Analyze fit before moving to step 3
+      if (inputMethod === "measurements") {
+        analyzeFit(selectedSize)
+      }
     }
 
     setActiveStep((prev) => Math.min(prev + 1, 3))
@@ -877,510 +644,336 @@ const VirtualFittingRoom = () => {
     setActiveStep((prev) => Math.max(prev - 1, 1))
   }
 
-  // Filter garments by category
-  const filteredGarments =
-    activeCategory === "All" ? garments : garments.filter((garment) => garment.category === activeCategory)
-
-  // Add a useEffect to ensure garments are displayed even if API fails
-  useEffect(() => {
-    // If after loading completes we have no garments, use fallback data
-    if (!loading && garments.length === 0) {
-      console.log("No garments found after loading, using fallback data")
-      setGarments(fallbackGarments)
-      setCategories(["All", "Dresses", "Suits", "Tops", "Outerwear", "Jeans"])
-    }
-  }, [loading, garments])
+  // Filter products by category
+  const filteredProducts =
+    activeCategory === "All" ? products : products.filter((product) => product.category === activeCategory)
 
   return (
     <PageContainer>
       {/* Hero Section */}
       <HeroSection>
-        <div className="container">
-          <HeroContent>
-            <h1>Virtual Fitting Room</h1>
-            <p>
-              Try on clothes virtually before you buy. Our advanced 3D technology creates a realistic representation of
-              how garments will look on your body and provides personalized fit recommendations.
-            </p>
-          </HeroContent>
-        </div>
+        <HeroContent>
+          <h1>Virtual Fitting Room</h1>
+          <p>
+            Try on clothes virtually before you buy. Our technology creates a personalized fit recommendation based on
+            your body measurements and the garment's dimensions.
+          </p>
+        </HeroContent>
       </HeroSection>
 
       {/* Main Content */}
       <MainSection>
-        <div className="container">
-          <StepIndicator>
-            <Step active={activeStep >= 1} completed={activeStep > 1}>
-              <StepNumber>{activeStep > 1 ? <FiCheck /> : 1}</StepNumber>
-              <StepLabel>Body Profile</StepLabel>
-            </Step>
-            <StepConnector completed={activeStep > 1} />
-            <Step active={activeStep >= 2} completed={activeStep > 2}>
-              <StepNumber>{activeStep > 2 ? <FiCheck /> : 2}</StepNumber>
-              <StepLabel>Select Garments</StepLabel>
-            </Step>
-            <StepConnector completed={activeStep > 2} />
-            <Step active={activeStep >= 3}>
-              <StepNumber>3</StepNumber>
-              <StepLabel>Try On</StepLabel>
-            </Step>
-          </StepIndicator>
+        <StepIndicator>
+          <Step active={activeStep >= 1} completed={activeStep > 1}>
+            <StepNumber>{activeStep > 1 ? <Check size={16} /> : 1}</StepNumber>
+            <StepLabel>Body Profile</StepLabel>
+          </Step>
+          <StepConnector completed={activeStep > 1} />
+          <Step active={activeStep >= 2} completed={activeStep > 2}>
+            <StepNumber>{activeStep > 2 ? <Check size={16} /> : 2}</StepNumber>
+            <StepLabel>Select Garments</StepLabel>
+          </Step>
+          <StepConnector completed={activeStep > 2} />
+          <Step active={activeStep >= 3}>
+            <StepNumber>3</StepNumber>
+            <StepLabel>Fit Analysis</StepLabel>
+          </Step>
+        </StepIndicator>
 
-          <StepContent>
-            {activeStep === 1 && (
-              <BodyProfileStep>
-                <h2>Create Your Body Profile</h2>
-                <p>
-                  To provide accurate fitting recommendations, we need to understand your body. Choose how you'd like to
-                  create your profile.
-                </p>
+        <StepContent>
+          {activeStep === 1 && (
+            <BodyProfileStep>
+              <h2>Create Your Body Profile</h2>
+              <p>
+                To provide accurate fitting recommendations, we need to understand your body. Choose how you'd like to
+                create your profile.
+              </p>
 
-                <InputOptions>
-                  <InputOption active={inputMethod === "photo"} onClick={() => setInputMethod("photo")}>
-                    <FiCamera />
-                    <h3>Use Photo</h3>
-                    <p>Upload or take a photo for our AI to analyze your body shape</p>
-                  </InputOption>
-                  <InputOption active={inputMethod === "measurements"} onClick={() => setInputMethod("measurements")}>
-                    <FiSliders />
-                    <h3>Enter Measurements</h3>
-                    <p>Manually enter your body measurements for precise fitting</p>
-                  </InputOption>
-                </InputOptions>
+              <InputOptions>
+                <InputOption active={inputMethod === "photo"} onClick={() => setInputMethod("photo")}>
+                  <Camera size={24} />
+                  <h3>Use Photo</h3>
+                  <p>Upload or take a photo for our AI to analyze your body shape</p>
+                </InputOption>
+                <InputOption active={inputMethod === "measurements"} onClick={() => setInputMethod("measurements")}>
+                  <User size={24} />
+                  <h3>Enter Measurements</h3>
+                  <p>Manually enter your body measurements for precise fitting</p>
+                </InputOption>
+              </InputOptions>
 
-                {inputMethod === "photo" && (
-                  <PhotoInputSection>
-                    {cameraActive ? (
-                      <CameraInterface>
-                        {availableCameras.length > 1 && (
-                          <CameraSelector>
-                            <label>Select Camera:</label>
-                            <select value={selectedCamera || ""} onChange={(e) => handleCameraChange(e.target.value)}>
-                              {availableCameras.map((camera, index) => (
-                                <option key={camera.deviceId} value={camera.deviceId}>
-                                  {camera.label || `Camera ${index + 1}`}
-                                </option>
-                              ))}
-                            </select>
-                          </CameraSelector>
-                        )}
-                        <video
-                          ref={videoRef}
-                          autoPlay
-                          playsInline
-                          muted
-                          style={{
-                            width: "100%",
-                            maxHeight: "500px",
-                            borderRadius: "8px",
-                            backgroundColor: "#000",
-                            objectFit: "cover",
+              {inputMethod === "photo" && (
+                <PhotoInputSection>
+                  {cameraActive ? (
+                    <CameraInterface>
+                      {availableCameras.length > 1 && (
+                        <CameraSelector>
+                          <label>Select Camera:</label>
+                          <select value={selectedCamera || ""} onChange={(e) => handleCameraChange(e.target.value)}>
+                            {availableCameras.map((camera, index) => (
+                              <option key={camera.deviceId} value={camera.deviceId}>
+                                {camera.label || `Camera ${index + 1}`}
+                              </option>
+                            ))}
+                          </select>
+                        </CameraSelector>
+                      )}
+                      <video
+                        ref={videoRef}
+                        autoPlay
+                        playsInline
+                        muted
+                        style={{
+                          width: "100%",
+                          maxHeight: "500px",
+                          borderRadius: "8px",
+                          backgroundColor: "#000",
+                          objectFit: "cover",
+                        }}
+                      />
+                      <canvas ref={canvasRef} style={{ display: "none" }} />
+                      <CameraControls>
+                        <Button primary onClick={capturePhoto}>
+                          Take Photo
+                        </Button>
+                        <Button onClick={switchCamera}>
+                          <RefreshCw size={16} /> Switch Camera
+                        </Button>
+                        <Button
+                          onClick={() => {
+                            if (stream) {
+                              stream.getTracks().forEach((track) => track.stop())
+                            }
+                            setCameraActive(false)
                           }}
+                        >
+                          Cancel
+                        </Button>
+                      </CameraControls>
+                    </CameraInterface>
+                  ) : userPhoto ? (
+                    <PhotoPreview>
+                      <img src={userPhoto || "/placeholder.svg"} alt="User" />
+                      <PhotoControls>
+                        <Button onClick={() => setUserPhoto(null)}>
+                          <X size={16} /> Remove
+                        </Button>
+                      </PhotoControls>
+                    </PhotoPreview>
+                  ) : (
+                    <UploadArea onDragOver={handleDragOver} onDrop={handleDrop}>
+                      <Upload size={48} />
+                      <p>Drag and drop your photo here or</p>
+                      <div className="upload-buttons">
+                        <Button as="label" primary>
+                          Browse Files
+                          <input type="file" accept="image/*" onChange={handleFileChange} style={{ display: "none" }} />
+                        </Button>
+                        <Button onClick={startCamera}>
+                          <Camera size={16} /> Use Camera
+                        </Button>
+                      </div>
+                      <small>Supported formats: JPG, PNG. Max size: 10MB</small>
+                    </UploadArea>
+                  )}
+
+                  <PhotoTips>
+                    <h3>Tips for best results:</h3>
+                    <ul>
+                      <li>Stand straight with arms slightly away from your body</li>
+                      <li>Wear fitted clothing to get accurate measurements</li>
+                      <li>Use a plain background if possible</li>
+                      <li>Ensure good lighting for clear visibility</li>
+                    </ul>
+                  </PhotoTips>
+                </PhotoInputSection>
+              )}
+
+              {inputMethod === "measurements" && (
+                <MeasurementsInputSection>
+                  <div className="measurements-form">
+                    <FormRow>
+                      <FormGroup>
+                        <label htmlFor="bust">Bust (inches)</label>
+                        <input
+                          type="number"
+                          id="bust"
+                          name="bust"
+                          value={userMeasurements.bust}
+                          onChange={handleMeasurementChange}
+                          placeholder="e.g., 36"
                         />
-                        <canvas ref={canvasRef} style={{ display: "none" }} />
-                        <CameraControls>
-                          <button onClick={capturePhoto} className="btn btn-gold">
-                            Take Photo
-                          </button>
-                          <button onClick={switchCamera} className="btn btn-outline">
-                            <FiRotateCw /> Switch Camera
-                          </button>
-                          <button
-                            onClick={() => {
-                              if (stream) {
-                                stream.getTracks().forEach((track) => track.stop())
-                              }
-                              setCameraActive(false)
-                            }}
-                            className="btn btn-outline"
-                          >
-                            Cancel
-                          </button>
-                        </CameraControls>
-                      </CameraInterface>
-                    ) : userPhoto ? (
-                      <PhotoPreview>
-                        <img src={userPhoto || "/placeholder.svg"} alt="User" />
-                        <PhotoControls>
-                          <button onClick={() => setUserPhoto(null)} className="btn btn-outline">
-                            <FiX /> Remove
-                          </button>
-                        </PhotoControls>
-                      </PhotoPreview>
+                      </FormGroup>
+                      <FormGroup>
+                        <label htmlFor="waist">Waist (inches)</label>
+                        <input
+                          type="number"
+                          id="waist"
+                          name="waist"
+                          value={userMeasurements.waist}
+                          onChange={handleMeasurementChange}
+                          placeholder="e.g., 28"
+                        />
+                      </FormGroup>
+                    </FormRow>
+                    <FormRow>
+                      <FormGroup>
+                        <label htmlFor="hips">Hips (inches)</label>
+                        <input
+                          type="number"
+                          id="hips"
+                          name="hips"
+                          value={userMeasurements.hips}
+                          onChange={handleMeasurementChange}
+                          placeholder="e.g., 38"
+                        />
+                      </FormGroup>
+                      <FormGroup>
+                        <label htmlFor="inseam">Inseam (inches)</label>
+                        <input
+                          type="number"
+                          id="inseam"
+                          name="inseam"
+                          value={userMeasurements.inseam}
+                          onChange={handleMeasurementChange}
+                          placeholder="e.g., 30"
+                        />
+                      </FormGroup>
+                    </FormRow>
+                    <FormRow>
+                      <FormGroup>
+                        <label htmlFor="height">Height (inches)</label>
+                        <input
+                          type="number"
+                          id="height"
+                          name="height"
+                          value={userMeasurements.height}
+                          onChange={handleMeasurementChange}
+                          placeholder="e.g., 65"
+                        />
+                      </FormGroup>
+                      <FormGroup>
+                        <label htmlFor="weight">Weight (lbs)</label>
+                        <input
+                          type="number"
+                          id="weight"
+                          name="weight"
+                          value={userMeasurements.weight}
+                          onChange={handleMeasurementChange}
+                          placeholder="e.g., 140"
+                        />
+                      </FormGroup>
+                    </FormRow>
+                  </div>
+
+                  <BodyTypeSelector>
+                    <h3>Select your body type:</h3>
+                    <div className="body-types">
+                      <BodyType active={userBodyType === "hourglass"} onClick={() => handleBodyTypeSelect("hourglass")}>
+                        <div className="body-icon hourglass-icon"></div>
+                        <span>Hourglass</span>
+                      </BodyType>
+                      <BodyType active={userBodyType === "pear"} onClick={() => handleBodyTypeSelect("pear")}>
+                        <div className="body-icon pear-icon"></div>
+                        <span>Pear</span>
+                      </BodyType>
+                      <BodyType active={userBodyType === "rectangle"} onClick={() => handleBodyTypeSelect("rectangle")}>
+                        <div className="body-icon rectangle-icon"></div>
+                        <span>Rectangle</span>
+                      </BodyType>
+                      <BodyType
+                        active={userBodyType === "inverted-triangle"}
+                        onClick={() => handleBodyTypeSelect("inverted-triangle")}
+                      >
+                        <div className="body-icon inverted-triangle-icon"></div>
+                        <span>Inverted Triangle</span>
+                      </BodyType>
+                      <BodyType active={userBodyType === "apple"} onClick={() => handleBodyTypeSelect("apple")}>
+                        <div className="body-icon apple-icon"></div>
+                        <span>Apple</span>
+                      </BodyType>
+                    </div>
+                  </BodyTypeSelector>
+                </MeasurementsInputSection>
+              )}
+
+              <ButtonGroup>
+                <Button
+                  primary
+                  onClick={handleNextStep}
+                  disabled={
+                    (inputMethod === "photo" && !userPhoto) ||
+                    (inputMethod === "measurements" &&
+                      (!userMeasurements.bust || !userMeasurements.waist || !userMeasurements.hips))
+                  }
+                >
+                  Continue <ArrowRight size={16} />
+                </Button>
+              </ButtonGroup>
+            </BodyProfileStep>
+          )}
+
+          {activeStep === 2 && (
+            <SelectGarmentsStep>
+              <h2>Select Garments to Try On</h2>
+              <p>Choose from our collection of garments to virtually try on.</p>
+
+              {loading ? (
+                <LoadingIndicator>Loading garments...</LoadingIndicator>
+              ) : error ? (
+                <ErrorMessage>{error}</ErrorMessage>
+              ) : (
+                <>
+                  <GarmentCategories>
+                    {categories.map((category) => (
+                      <GarmentCategory
+                        key={category}
+                        active={activeCategory === category}
+                        onClick={() => handleCategorySelect(category)}
+                      >
+                        {category}
+                      </GarmentCategory>
+                    ))}
+                  </GarmentCategories>
+
+                  <GarmentGrid>
+                    {filteredProducts.length === 0 ? (
+                      <NoGarmentsMessage>No garments found in this category.</NoGarmentsMessage>
                     ) : (
-                      <UploadArea onDragOver={handleDragOver} onDrop={handleDrop}>
-                        <FiUpload />
-                        <p>Drag and drop your photo here or</p>
-                        <div className="upload-buttons">
-                          <label className="btn btn-gold">
-                            Browse Files
-                            <input
-                              type="file"
-                              accept="image/*"
-                              onChange={handleFileChange}
-                              style={{ display: "none" }}
-                            />
-                          </label>
-                          <button onClick={startCamera} className="btn btn-outline">
-                            <FiCamera /> Use Camera
-                          </button>
-                        </div>
-                        <small>Supported formats: JPG, PNG. Max size: 10MB</small>
-                      </UploadArea>
+                      filteredProducts.map((product) => (
+                        <GarmentCard
+                          key={product.id}
+                          selected={selectedProduct === product.id}
+                          onClick={() => handleProductSelect(product.id)}
+                        >
+                          <GarmentImage>
+                            <img src={product.image || "/placeholder.svg?height=300&width=200"} alt={product.name} />
+                            {selectedProduct === product.id && (
+                              <SelectedBadge>
+                                <Check size={16} />
+                              </SelectedBadge>
+                            )}
+                          </GarmentImage>
+                          <GarmentInfo>
+                            <h3>{product.name}</h3>
+                            <p className="price">${product.price}</p>
+                            <p className="category">{product.category || "Uncategorized"}</p>
+                          </GarmentInfo>
+                        </GarmentCard>
+                      ))
                     )}
+                  </GarmentGrid>
 
-                    <PhotoTips>
-                      <h3>Tips for best results:</h3>
-                      <ul>
-                        <li>Stand straight with arms slightly away from your body</li>
-                        <li>Wear fitted clothing to get accurate measurements</li>
-                        <li>Use a plain background if possible</li>
-                        <li>Ensure good lighting for clear visibility</li>
-                      </ul>
-                    </PhotoTips>
+                  {selectedProductDetails && (
+                    <GarmentDetails>
+                      <h3>Selected Garment Details</h3>
+                      <p className="description">{selectedProductDetails.description || "No description available"}</p>
 
-                    {userPhoto && (
-                      <SkinToneSelector>
-                        <h3>Select your skin tone:</h3>
-                        <div className="skin-tones">
-                          <SkinTone
-                            color="#F5D5C5"
-                            active={userSkinTone === "fair"}
-                            onClick={() => handleSkinToneSelect("fair")}
-                            label="Fair"
-                          />
-                          <SkinTone
-                            color="#D8A990"
-                            active={userSkinTone === "medium"}
-                            onClick={() => handleSkinToneSelect("medium")}
-                            label="Medium"
-                          />
-                          <SkinTone
-                            color="#B07B59"
-                            active={userSkinTone === "olive"}
-                            onClick={() => handleSkinToneSelect("olive")}
-                            label="Olive"
-                          />
-                          <SkinTone
-                            color="#70461E"
-                            active={userSkinTone === "dark"}
-                            onClick={() => handleSkinToneSelect("dark")}
-                            label="Dark"
-                          />
-                        </div>
-                      </SkinToneSelector>
-                    )}
-                  </PhotoInputSection>
-                )}
-
-                {inputMethod === "measurements" && (
-                  <MeasurementsInputSection>
-                    <div className="measurements-form">
-                      <div className="form-row">
-                        <div className="form-group">
-                          <label htmlFor="bust">Bust (inches)</label>
-                          <input
-                            type="number"
-                            id="bust"
-                            name="bust"
-                            value={userMeasurements.bust}
-                            onChange={handleMeasurementChange}
-                            placeholder="e.g., 36"
-                          />
-                        </div>
-                        <div className="form-group">
-                          <label htmlFor="waist">Waist (inches)</label>
-                          <input
-                            type="number"
-                            id="waist"
-                            name="waist"
-                            value={userMeasurements.waist}
-                            onChange={handleMeasurementChange}
-                            placeholder="e.g., 28"
-                          />
-                        </div>
-                      </div>
-                      <div className="form-row">
-                        <div className="form-group">
-                          <label htmlFor="hips">Hips (inches)</label>
-                          <input
-                            type="number"
-                            id="hips"
-                            name="hips"
-                            value={userMeasurements.hips}
-                            onChange={handleMeasurementChange}
-                            placeholder="e.g., 38"
-                          />
-                        </div>
-                        <div className="form-group">
-                          <label htmlFor="inseam">Inseam (inches)</label>
-                          <input
-                            type="number"
-                            id="inseam"
-                            name="inseam"
-                            value={userMeasurements.inseam}
-                            onChange={handleMeasurementChange}
-                            placeholder="e.g., 30"
-                          />
-                        </div>
-                      </div>
-                      <div className="form-row">
-                        <div className="form-group">
-                          <label htmlFor="height">Height (inches)</label>
-                          <input
-                            type="number"
-                            id="height"
-                            name="height"
-                            value={userMeasurements.height}
-                            onChange={handleMeasurementChange}
-                            placeholder="e.g., 65"
-                          />
-                        </div>
-                        <div className="form-group">
-                          <label htmlFor="weight">Weight (lbs)</label>
-                          <input
-                            type="number"
-                            id="weight"
-                            name="weight"
-                            value={userMeasurements.weight}
-                            onChange={handleMeasurementChange}
-                            placeholder="e.g., 140"
-                          />
-                        </div>
-                      </div>
-                    </div>
-
-                    <BodyTypeSelector>
-                      <h3>Select your body type:</h3>
-                      <div className="body-types">
-                        <BodyType
-                          active={userBodyType === "hourglass"}
-                          onClick={() => handleBodyTypeSelect("hourglass")}
-                        >
-                          <div className="body-icon hourglass-icon"></div>
-                          <span>Hourglass</span>
-                        </BodyType>
-                        <BodyType active={userBodyType === "pear"} onClick={() => handleBodyTypeSelect("pear")}>
-                          <div className="body-icon pear-icon"></div>
-                          <span>Pear</span>
-                        </BodyType>
-                        <BodyType
-                          active={userBodyType === "rectangle"}
-                          onClick={() => handleBodyTypeSelect("rectangle")}
-                        >
-                          <div className="body-icon rectangle-icon"></div>
-                          <span>Rectangle</span>
-                        </BodyType>
-                        <BodyType
-                          active={userBodyType === "inverted triangle"}
-                          onClick={() => handleBodyTypeSelect("inverted triangle")}
-                        >
-                          <div className="body-icon inverted-triangle-icon"></div>
-                          <span>Inverted Triangle</span>
-                        </BodyType>
-                        <BodyType active={userBodyType === "apple"} onClick={() => handleBodyTypeSelect("apple")}>
-                          <div className="body-icon apple-icon"></div>
-                          <span>Apple</span>
-                        </BodyType>
-                      </div>
-                    </BodyTypeSelector>
-
-                    <SkinToneSelector>
-                      <h3>Select your skin tone:</h3>
-                      <div className="skin-tones">
-                        <SkinTone
-                          color="#F5D5C5"
-                          active={userSkinTone === "fair"}
-                          onClick={() => handleSkinToneSelect("fair")}
-                          label="Fair"
-                        />
-                        <SkinTone
-                          color="#D8A990"
-                          active={userSkinTone === "medium"}
-                          onClick={() => handleSkinToneSelect("medium")}
-                          label="Medium"
-                        />
-                        <SkinTone
-                          color="#B07B59"
-                          active={userSkinTone === "olive"}
-                          onClick={() => handleSkinToneSelect("olive")}
-                          label="Olive"
-                        />
-                        <SkinTone
-                          color="#70461E"
-                          active={userSkinTone === "dark"}
-                          onClick={() => handleSkinToneSelect("dark")}
-                          label="Dark"
-                        />
-                      </div>
-                    </SkinToneSelector>
-                  </MeasurementsInputSection>
-                )}
-
-                <ButtonGroup>
-                  <button
-                    className="btn btn-gold"
-                    onClick={handleNextStep}
-                    disabled={
-                      (inputMethod === "photo" && !userPhoto) ||
-                      (inputMethod === "measurements" &&
-                        (!userMeasurements.bust || !userMeasurements.waist || !userMeasurements.hips))
-                    }
-                  >
-                    Continue <FiArrowRight />
-                  </button>
-                </ButtonGroup>
-              </BodyProfileStep>
-            )}
-
-            {activeStep === 2 && (
-              <SelectGarmentsStep>
-                <h2>Select Garments to Try On</h2>
-                <p>Choose from our collection of garments to virtually try on.</p>
-
-                {loading ? (
-                  <LoadingIndicator>Loading garments...</LoadingIndicator>
-                ) : error ? (
-                  <ErrorMessage>{error}</ErrorMessage>
-                ) : (
-                  <>
-                    <GarmentCategories>
-                      {categories.map((category) => (
-                        <GarmentCategory
-                          key={category}
-                          active={activeCategory === category}
-                          onClick={() => handleCategorySelect(category)}
-                        >
-                          {category}
-                        </GarmentCategory>
-                      ))}
-                    </GarmentCategories>
-
-                    <GarmentGrid>
-                      {filteredGarments.length === 0 ? (
-                        <NoGarmentsMessage>No garments found in this category.</NoGarmentsMessage>
-                      ) : (
-                        filteredGarments.map((garment) => (
-                          <GarmentCard
-                            key={garment.id}
-                            selected={selectedGarment === garment.id}
-                            onClick={() => handleGarmentSelect(garment.id)}
-                          >
-                            <GarmentImage>
-                              <img src={garment.image || "/placeholder.svg?height=300&width=200"} alt={garment.name} />
-                              {selectedGarment === garment.id && (
-                                <SelectedBadge>
-                                  <FiCheck />
-                                </SelectedBadge>
-                              )}
-                            </GarmentImage>
-                            <GarmentInfo>
-                              <h3>{garment.name}</h3>
-                              <p className="price">${garment.price}</p>
-                              <p className="category">{garment.category}</p>
-                            </GarmentInfo>
-                          </GarmentCard>
-                        ))
-                      )}
-                    </GarmentGrid>
-
-                    {selectedGarmentDetails && (
-                      <GarmentDetails>
-                        <h3>Selected Garment Details</h3>
-                        <p className="description">{selectedGarmentDetails.description}</p>
-
-                        <div className="options-container">
-                          <div className="size-selector">
-                            <h4>Size</h4>
-                            <div className="sizes">
-                              {selectedGarmentDetails.sizes.map((size) => (
-                                <SizeOption
-                                  key={size}
-                                  active={selectedSize === size}
-                                  onClick={() => handleSizeSelect(size)}
-                                >
-                                  {size}
-                                </SizeOption>
-                              ))}
-                            </div>
-                          </div>
-
-                          <div className="color-selector">
-                            <h4>Color</h4>
-                            <div className="colors">
-                              {selectedGarmentDetails.colors.map((color) => (
-                                <ColorOption
-                                  key={color}
-                                  color={color}
-                                  active={selectedColor === color}
-                                  onClick={() => handleColorSelect(color)}
-                                />
-                              ))}
-                            </div>
-                          </div>
-                        </div>
-                      </GarmentDetails>
-                    )}
-                  </>
-                )}
-
-                <ButtonGroup>
-                  <button className="btn btn-outline" onClick={handlePrevStep}>
-                    Back
-                  </button>
-                  <button className="btn btn-gold" onClick={handleNextStep} disabled={!selectedGarment || loading}>
-                    Try On <FiArrowRight />
-                  </button>
-                </ButtonGroup>
-              </SelectGarmentsStep>
-            )}
-
-            {activeStep === 3 && (
-              <TryOnStep>
-                <h2>Virtual Try-On</h2>
-                <p>
-                  Here's how the selected garment looks on you in 3D. You can rotate the view, adjust size and color to
-                  see different options.
-                </p>
-
-                <TryOnContainer>
-                  <TryOnViewer>
-                    <div className="try-on-image">
-                      {tryOnLoading ? (
-                        <LoadingIndicator>Processing your virtual try-on...</LoadingIndicator>
-                      ) : tryOnError ? (
-                        <ErrorMessage>{tryOnError}</ErrorMessage>
-                      ) : (
-                        <div style={{ width: "100%", height: "100%" }}>
-                          <TryOnScene
-                            userPhoto={userPhoto}
-                            selectedGarment={selectedGarmentDetails}
-                            selectedColor={selectedColor}
-                          />
-                        </div>
-                      )}
-                    </div>
-                    <TryOnControls>
-                      <button>
-                        <FiRotateCw /> Rotate View
-                      </button>
-                      <button>
-                        <FiMaximize /> Fullscreen
-                      </button>
-                    </TryOnControls>
-                  </TryOnViewer>
-
-                  <TryOnOptions>
-                    {selectedGarmentDetails && (
-                      <TryOnInfo>
-                        <h3>{selectedGarmentDetails.name}</h3>
-                        <p className="price">${selectedGarmentDetails.price}</p>
-                        <p className="description">{selectedGarmentDetails.description}</p>
-
+                      <div className="options-container">
                         <div className="size-selector">
                           <h4>Size</h4>
                           <div className="sizes">
-                            {selectedGarmentDetails.sizes.map((size) => (
+                            {(selectedProductDetails.sizes || ["XS", "S", "M", "L", "XL"]).map((size) => (
                               <SizeOption
                                 key={size}
                                 active={selectedSize === size}
@@ -1395,127 +988,182 @@ const VirtualFittingRoom = () => {
                         <div className="color-selector">
                           <h4>Color</h4>
                           <div className="colors">
-                            {selectedGarmentDetails.colors.map((color) => (
-                              <ColorOption
-                                key={color}
-                                color={color}
-                                active={selectedColor === color}
-                                onClick={() => handleColorSelect(color)}
-                              />
-                            ))}
+                            {(selectedProductDetails.colors || ["#000", "#000080", "#800020", "#50C878"]).map(
+                              (color) => (
+                                <ColorOption
+                                  key={color}
+                                  color={color}
+                                  active={selectedColor === color}
+                                  onClick={() => handleColorSelect(color)}
+                                />
+                              ),
+                            )}
                           </div>
                         </div>
+                      </div>
+                    </GarmentDetails>
+                  )}
+                </>
+              )}
 
-                        {fitAnalysis && (
-                          <FitAnalysis>
-                            <h4>
-                              Fit Analysis <FiInfo />
-                            </h4>
-                            <FitBar>
-                              <FitIndicator position={fitAnalysis.fitPosition} />
-                            </FitBar>
-                            <FitLabels>
-                              <span>Too Tight</span>
-                              <span>Perfect Fit</span>
-                              <span>Too Loose</span>
-                            </FitLabels>
-                            <FitMessage>{fitAnalysis.fitMessage}</FitMessage>
+              <ButtonGroup>
+                <Button onClick={handlePrevStep}>Back</Button>
+                <Button primary onClick={handleNextStep} disabled={!selectedProduct || loading}>
+                  Analyze Fit <ArrowRight size={16} />
+                </Button>
+              </ButtonGroup>
+            </SelectGarmentsStep>
+          )}
 
-                            <FitDetails>
-                              <div className="fit-detail">
-                                <span>Bust Fit:</span>
-                                <FitMeter value={fitAnalysis.details.bust} />
-                              </div>
-                              <div className="fit-detail">
-                                <span>Waist Fit:</span>
-                                <FitMeter value={fitAnalysis.details.waist} />
-                              </div>
-                              <div className="fit-detail">
-                                <span>Hips Fit:</span>
-                                <FitMeter value={fitAnalysis.details.hips} />
-                              </div>
-                            </FitDetails>
-                          </FitAnalysis>
-                        )}
+          {activeStep === 3 && (
+            <FitAnalysisStep>
+              <h2>Fit Analysis</h2>
+              <p>Here's how the selected garment will fit you based on your measurements.</p>
 
-                        {colorAnalysis && (
-                          <ColorAnalysis>
-                            <h4>
-                              Color Analysis <FiInfo />
-                            </h4>
-                            <ColorMatchBar>
-                              <ColorMatchIndicator score={colorAnalysis.matchScore} />
-                            </ColorMatchBar>
-                            <ColorMatchLabels>
-                              <span>Not Flattering</span>
-                              <span>Neutral</span>
-                              <span>Ideal Match</span>
-                            </ColorMatchLabels>
-                            <ColorMatchMessage>{colorAnalysis.matchMessage}</ColorMatchMessage>
-                          </ColorAnalysis>
-                        )}
+              <FitAnalysisContainer>
+                <ProductPreview>
+                  {selectedProductDetails && (
+                    <>
+                      <img
+                        src={selectedProductDetails.image || "/placeholder.svg?height=500&width=400"}
+                        alt={selectedProductDetails.name}
+                      />
+                      <ProductInfo>
+                        <h3>{selectedProductDetails.name}</h3>
+                        <p className="price">${selectedProductDetails.price}</p>
+                        <p className="size">Size: {selectedSize}</p>
+                        <ColorSwatch color={selectedColor} />
+                      </ProductInfo>
+                    </>
+                  )}
+                </ProductPreview>
 
-                        <ButtonGroup>
-                          <button className="btn btn-gold" onClick={handleAddToCart} disabled={tryOnLoading}>
-                            <FiShoppingCart className="icon-left" /> Add to Cart
-                          </button>
-                          <button className="btn btn-outline" onClick={handleSaveDesign} disabled={tryOnLoading}>
-                            <FiHeart className="icon-left" /> Save Design
-                          </button>
-                        </ButtonGroup>
-                      </TryOnInfo>
-                    )}
-                  </TryOnOptions>
-                </TryOnContainer>
+                <FitDetails>
+                  {fitAnalysis ? (
+                    <>
+                      <FitSummary>
+                        <h3>
+                          Fit Analysis <Info size={16} />
+                        </h3>
+                        <FitBar>
+                          <FitIndicator position={fitAnalysis.fitPosition} />
+                        </FitBar>
+                        <FitLabels>
+                          <span>Too Tight</span>
+                          <span>Perfect Fit</span>
+                          <span>Too Loose</span>
+                        </FitLabels>
+                        <FitMessage>{fitAnalysis.fitMessage}</FitMessage>
 
-                <ButtonGroup>
-                  <button className="btn btn-outline" onClick={handlePrevStep}>
-                    Back
-                  </button>
-                  <button className="btn btn-outline" onClick={() => setActiveStep(2)}>
-                    Try Another Garment
-                  </button>
-                </ButtonGroup>
-              </TryOnStep>
-            )}
-          </StepContent>
-        </div>
+                        <FitMeasurements>
+                          <div className="fit-detail">
+                            <span>Bust Fit:</span>
+                            <FitMeter value={fitAnalysis.details.bust} />
+                          </div>
+                          <div className="fit-detail">
+                            <span>Waist Fit:</span>
+                            <FitMeter value={fitAnalysis.details.waist} />
+                          </div>
+                          <div className="fit-detail">
+                            <span>Hips Fit:</span>
+                            <FitMeter value={fitAnalysis.details.hips} />
+                          </div>
+                        </FitMeasurements>
+                      </FitSummary>
+
+                      <SizeRecommendation>
+                        <h3>Size Recommendation</h3>
+                        <p>
+                          {fitAnalysis.overallFit < 40
+                            ? "We recommend trying a larger size for a more comfortable fit."
+                            : fitAnalysis.overallFit > 70
+                              ? "We recommend trying a smaller size for a more flattering fit."
+                              : "This size should fit you well based on your measurements."}
+                        </p>
+                        <div className="size-options">
+                          {(selectedProductDetails?.sizes || ["XS", "S", "M", "L", "XL"]).map((size) => (
+                            <SizeOption
+                              key={size}
+                              active={selectedSize === size}
+                              recommended={
+                                (fitAnalysis.overallFit < 40 &&
+                                  (selectedProductDetails?.sizes || ["XS", "S", "M", "L", "XL"]).indexOf(size) >
+                                    (selectedProductDetails?.sizes || ["XS", "S", "M", "L", "XL"]).indexOf(
+                                      selectedSize,
+                                    )) ||
+                                (fitAnalysis.overallFit > 70 &&
+                                  (selectedProductDetails?.sizes || ["XS", "S", "M", "L", "XL"]).indexOf(size) <
+                                    (selectedProductDetails?.sizes || ["XS", "S", "M", "L", "XL"]).indexOf(
+                                      selectedSize,
+                                    )) ||
+                                (fitAnalysis.overallFit >= 40 && fitAnalysis.overallFit <= 70 && size === selectedSize)
+                              }
+                              onClick={() => handleSizeSelect(size)}
+                            >
+                              {size}
+                            </SizeOption>
+                          ))}
+                        </div>
+                      </SizeRecommendation>
+                    </>
+                  ) : (
+                    <LoadingIndicator>Analyzing fit...</LoadingIndicator>
+                  )}
+
+                  <ButtonGroup>
+                    <Button primary>
+                      <ShoppingCart size={16} /> Add to Cart
+                    </Button>
+                    <Button>
+                      <Heart size={16} /> Save to Wishlist
+                    </Button>
+                  </ButtonGroup>
+                </FitDetails>
+              </FitAnalysisContainer>
+
+              <ButtonGroup>
+                <Button onClick={handlePrevStep}>Back</Button>
+                <Button onClick={() => setActiveStep(1)}>Start Over</Button>
+              </ButtonGroup>
+            </FitAnalysisStep>
+          )}
+        </StepContent>
       </MainSection>
 
       {/* Features Section */}
       <FeaturesSection>
-        <div className="container">
-          <h2>Key Features of Our 3D Virtual Fitting Room</h2>
+        <h2>Key Features of Our Virtual Fitting Room</h2>
 
-          <FeaturesGrid>
-            <FeatureCard>
-              <FeatureIcon>
-                <FiUser />
-              </FeatureIcon>
-              <h3>3D Body Visualization</h3>
-              <p>
-                Our advanced 3D technology creates a realistic model of how clothes will look on your body from every
-                angle.
-              </p>
-            </FeatureCard>
+        <FeaturesGrid>
+          <FeatureCard>
+            <FeatureIcon>
+              <User size={24} />
+            </FeatureIcon>
+            <h3>Personalized Size Analysis</h3>
+            <p>
+              Our technology compares your exact measurements with each garment's dimensions to provide personalized fit
+              recommendations.
+            </p>
+          </FeatureCard>
 
-            <FeatureCard>
-              <FeatureIcon>
-                <FiRotateCw />
-              </FeatureIcon>
-              <h3>360° Visualization</h3>
-              <p>View garments from all angles to get a complete understanding of the fit and style.</p>
-            </FeatureCard>
+          <FeatureCard>
+            <FeatureIcon>
+              <RefreshCw size={24} />
+            </FeatureIcon>
+            <h3>Detailed Fit Breakdown</h3>
+            <p>
+              Get detailed analysis of how each garment will fit across different body areas like bust, waist, and hips.
+            </p>
+          </FeatureCard>
 
-            <FeatureCard>
-              <FeatureIcon>
-                <FiCheck />
-              </FeatureIcon>
-              <h3>Personalized Recommendations</h3>
-              <p>Get personalized size and color recommendations based on your body shape and skin tone.</p>
-            </FeatureCard>
-          </FeaturesGrid>
-        </div>
+          <FeatureCard>
+            <FeatureIcon>
+              <Check size={24} />
+            </FeatureIcon>
+            <h3>Size Recommendations</h3>
+            <p>Receive personalized size recommendations based on your unique body measurements.</p>
+          </FeatureCard>
+        </FeaturesGrid>
       </FeaturesSection>
     </PageContainer>
   )
@@ -1524,24 +1172,33 @@ const VirtualFittingRoom = () => {
 // Styled Components
 const PageContainer = styled.div`
   width: 100%;
-  background: linear-gradient(to right, rgba(242, 240, 235, 0.9), rgba(227, 223, 214, 0.7));
+  background: #f8f9fa;
+  font-family: 'Inter', sans-serif;
+  color: #333;
   --gold-primary: #D4AF37;
   --gold-light: #F4D160;
-  --gold-dark: #AA8C2C;
+  --gold-dark: #C09B2A;
   --luxury-black: #1A1A1A;
 `
 
 const HeroSection = styled.section`
   background: linear-gradient(
     to right,
-    rgba(4, 5, 7, 0.7),
-    rgba(223, 223, 224, 0.5)
+    rgba(0, 0, 0, 0.8),
+    rgba(0, 0, 0, 0.6)
   ), url("/placeholder.svg?height=800&width=1600");
   background-size: cover;
   background-position: center;
   color: white;
-  padding: 8rem 0;
+  padding: 6rem 2rem;
   text-align: center;
+  
+  h1 {
+    background: linear-gradient(135deg, #D4AF37 0%, #F4D160 50%, #D4AF37 100%);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+  }
 `
 
 const HeroContent = styled.div`
@@ -1549,35 +1206,28 @@ const HeroContent = styled.div`
   margin: 0 auto;
 
   h1 {
-    font-size: 4rem;
-    margin-bottom: 2rem;
-    background: linear-gradient(135deg, var(--gold-primary) 0%, var(--gold-light) 50%, var(--gold-primary) 100%);
-    -webkit-background-clip: text;
-    -webkit-text-fill-color: transparent;
-    background-clip: text;
+    font-size: 3rem;
+    margin-bottom: 1.5rem;
+    font-weight: 700;
   }
 
   p {
-    font-size: 1.3rem;
-    line-height: 1.7;
+    font-size: 1.2rem;
+    line-height: 1.6;
   }
 `
 
 const MainSection = styled.section`
-  padding: 5rem 0;
-
-  .container {
-    max-width: 1200px;
-    margin: 0 auto;
-    padding: 0 1.5rem;
-  }
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: 3rem 1.5rem;
 `
 
 const StepIndicator = styled.div`
   display: flex;
   align-items: center;
   justify-content: center;
-  margin-bottom: 3rem;
+  margin-bottom: 2rem;
 `
 
 const Step = styled.div`
@@ -1586,32 +1236,14 @@ const Step = styled.div`
   align-items: center;
   position: relative;
   z-index: 1;
-
-  ${(props) =>
-    props.active &&
-    `
-    .step-number {
-      background-color: var(--gold-primary);
-      color: black;
-    }
-  `}
-
-  ${(props) =>
-    props.completed &&
-    `
-    .step-number {
-      background-color: var(--gold-primary);
-      color: black;
-    }
-  `}
 `
 
 const StepNumber = styled.div`
-  width: 40px;
-  height: 40px;
+  width: 36px;
+  height: 36px;
   border-radius: 50%;
-  background-color: rgba(0, 0, 0, 0.1);
-  color: rgba(0, 0, 0, 0.5);
+  background-color: ${(props) => (props.active ? "#D4AF37" : "rgba(0, 0, 0, 0.1)")};
+  color: ${(props) => (props.active ? "black" : "rgba(0, 0, 0, 0.5)")};
   display: flex;
   align-items: center;
   justify-content: center;
@@ -1626,13 +1258,13 @@ const StepLabel = styled.div`
 `
 
 const StepConnector = styled.div`
-  width: 100px;
+  width: 80px;
   height: 2px;
-  background-color: ${(props) => (props.completed ? "var(--gold-primary)" : "rgba(0, 0, 0, 0.1)")};
+  background-color: ${(props) => (props.completed ? "#D4AF37" : "rgba(0, 0, 0, 0.1)")};
   margin: 0 1rem;
 
   @media (max-width: 768px) {
-    width: 50px;
+    width: 40px;
   }
 `
 
@@ -1640,15 +1272,15 @@ const StepContent = styled.div`
   background: white;
   border-radius: 8px;
   padding: 2rem;
-  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.05);
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
 `
 
 // Body Profile Step Components
 const BodyProfileStep = styled.div`
   h2 {
-    font-size: 2rem;
+    font-size: 1.8rem;
     margin-bottom: 1rem;
-    color: black;
+    color: #333;
   }
 
   p {
@@ -1666,27 +1298,26 @@ const InputOptions = styled.div`
 `
 
 const InputOption = styled.div`
-  padding: 2rem;
+  padding: 1.5rem;
   border-radius: 8px;
-  border: 2px solid ${(props) => (props.active ? "var(--gold-primary)" : "rgba(0, 0, 0, 0.1)")};
+  border: 2px solid ${(props) => (props.active ? "#D4AF37" : "rgba(0, 0, 0, 0.1)")};
   background: ${(props) => (props.active ? "rgba(212, 175, 55, 0.05)" : "white")};
   text-align: center;
   cursor: pointer;
   transition: all 0.3s ease;
 
   &:hover {
-    border-color: var(--gold-primary);
+    border-color: #D4AF37;
   }
 
   svg {
-    font-size: 2rem;
-    color: var(--gold-primary);
+    color: #D4AF37;
     margin-bottom: 1rem;
   }
 
   h3 {
     margin-bottom: 0.5rem;
-    color: black;
+    color: #333;
   }
 
   p {
@@ -1709,11 +1340,10 @@ const UploadArea = styled.div`
   transition: all 0.3s ease;
 
   &:hover {
-    border-color: var(--gold-primary);
+    border-color: #D4AF37;
   }
 
   svg {
-    font-size: 3rem;
     color: rgba(0, 0, 0, 0.2);
     margin-bottom: 1rem;
   }
@@ -1738,54 +1368,10 @@ const UploadArea = styled.div`
       align-items: center;
     }
   }
-
-  .btn {
-    display: inline-flex;
-    align-items: center;
-    padding: 0.75rem 1.5rem;
-    border-radius: 4px;
-    font-weight: 500;
-    cursor: pointer;
-    transition: all 0.3s ease;
-    
-    svg {
-      font-size: 1rem;
-      margin-right: 0.5rem;
-      margin-bottom: 0;
-    }
-  }
-
-  .btn-gold {
-    background: var(--gold-primary);
-    color: black;
-    border: none;
-
-    &:hover {
-      background: var(--gold-dark);
-    }
-  }
-
-  .btn-outline {
-    background: transparent;
-    color: black;
-    border: 1px solid black;
-
-    &:hover {
-      background: rgba(0, 0, 0, 0.05);
-    }
-  }
 `
 
 const CameraInterface = styled.div`
   margin-bottom: 2rem;
-  
-  video {
-    width: 100%;
-    max-height: 500px;
-    border-radius: 8px;
-    background-color: #000;
-    margin-bottom: 1rem;
-  }
 `
 
 const CameraSelector = styled.div`
@@ -1806,7 +1392,7 @@ const CameraSelector = styled.div`
     
     &:focus {
       outline: none;
-      border-color: var(--gold-primary);
+      border-color: #D4AF37;
     }
   }
 `
@@ -1816,41 +1402,7 @@ const CameraControls = styled.div`
   justify-content: center;
   gap: 1rem;
   flex-wrap: wrap;
-  
-  .btn {
-    display: inline-flex;
-    align-items: center;
-    padding: 0.75rem 1.5rem;
-    border-radius: 4px;
-    font-weight: 500;
-    cursor: pointer;
-    transition: all 0.3s ease;
-    
-    svg {
-      margin-right: 0.5rem;
-      font-size: 1rem;
-    }
-  }
-
-  .btn-gold {
-    background: var(--gold-primary);
-    color: black;
-    border: none;
-
-    &:hover {
-      background: var(--gold-dark);
-    }
-  }
-
-  .btn-outline {
-    background: transparent;
-    color: black;
-    border: 1px solid black;
-
-    &:hover {
-      background: rgba(0, 0, 0, 0.05);
-    }
-  }
+  margin-top: 1rem;
 `
 
 const PhotoPreview = styled.div`
@@ -1868,30 +1420,6 @@ const PhotoPreview = styled.div`
 const PhotoControls = styled.div`
   display: flex;
   justify-content: center;
-  
-  .btn {
-    display: inline-flex;
-    align-items: center;
-    padding: 0.75rem 1.5rem;
-    border-radius: 4px;
-    font-weight: 500;
-    cursor: pointer;
-    transition: all 0.3s ease;
-    
-    svg {
-      margin-right: 0.5rem;
-    }
-  }
-
-  .btn-outline {
-    background: transparent;
-    color: black;
-    border: 1px solid black;
-
-    &:hover {
-      background: rgba(0, 0, 0, 0.05);
-    }
-  }
 `
 
 const PhotoTips = styled.div`
@@ -1903,7 +1431,7 @@ const PhotoTips = styled.div`
   h3 {
     font-size: 1.2rem;
     margin-bottom: 1rem;
-    color: black;
+    color: #333;
   }
 
   ul {
@@ -1922,36 +1450,36 @@ const MeasurementsInputSection = styled.div`
   .measurements-form {
     margin-bottom: 2rem;
   }
+`
+
+const FormRow = styled.div`
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 1.5rem;
+  margin-bottom: 1.5rem;
   
-  .form-row {
-    display: grid;
-    grid-template-columns: 1fr 1fr;
-    gap: 1.5rem;
-    margin-bottom: 1.5rem;
-    
-    @media (max-width: 576px) {
-      grid-template-columns: 1fr;
-    }
+  @media (max-width: 576px) {
+    grid-template-columns: 1fr;
+  }
+`
+
+const FormGroup = styled.div`
+  label {
+    display: block;
+    margin-bottom: 0.5rem;
+    font-weight: 500;
   }
   
-  .form-group {
-    label {
-      display: block;
-      margin-bottom: 0.5rem;
-      font-weight: 500;
-    }
+  input {
+    width: 100%;
+    padding: 0.75rem;
+    border: 1px solid rgba(0, 0, 0, 0.1);
+    border-radius: 4px;
+    font-size: 1rem;
     
-    input {
-      width: 100%;
-      padding: 0.75rem;
-      border: 1px solid rgba(0, 0, 0, 0.1);
-      border-radius: 4px;
-      font-size: 1rem;
-      
-      &:focus {
-        outline: none;
-        border-color: var(--gold-primary);
-      }
+    &:focus {
+      outline: none;
+      border-color: #D4AF37;
     }
   }
 `
@@ -1962,7 +1490,7 @@ const BodyTypeSelector = styled.div`
   h3 {
     font-size: 1.2rem;
     margin-bottom: 1rem;
-    color: black;
+    color: #333;
   }
   
   .body-types {
@@ -1978,14 +1506,14 @@ const BodyType = styled.div`
   align-items: center;
   padding: 1rem;
   border-radius: 8px;
-  border: 2px solid ${(props) => (props.active ? "var(--gold-primary)" : "rgba(0, 0, 0, 0.1)")};
+  border: 2px solid ${(props) => (props.active ? "#D4AF37" : "rgba(0, 0, 0, 0.1)")};
   background: ${(props) => (props.active ? "rgba(212, 175, 55, 0.05)" : "white")};
   cursor: pointer;
   transition: all 0.3s ease;
   width: 100px;
   
   &:hover {
-    border-color: var(--gold-primary);
+    border-color: #D4AF37;
   }
   
   .body-icon {
@@ -2021,47 +1549,6 @@ const BodyType = styled.div`
   }
 `
 
-const SkinToneSelector = styled.div`
-  margin-bottom: 2rem;
-  
-  h3 {
-    font-size: 1.2rem;
-    margin-bottom: 1rem;
-    color: black;
-  }
-  
-  .skin-tones {
-    display: flex;
-    gap: 1rem;
-    flex-wrap: wrap;
-  }
-`
-
-const SkinTone = styled.div`
-  width: 60px;
-  height: 60px;
-  border-radius: 50%;
-  background-color: ${(props) => props.color};
-  cursor: pointer;
-  border: 3px solid ${(props) => (props.active ? "var(--gold-primary)" : "transparent")};
-  position: relative;
-  transition: all 0.3s ease;
-  
-  &:hover {
-    transform: scale(1.1);
-  }
-  
-  &::after {
-    content: "${(props) => props.label}";
-    position: absolute;
-    bottom: -20px;
-    left: 50%;
-    transform: translateX(-50%);
-    font-size: 0.8rem;
-    white-space: nowrap;
-  }
-`
-
 const ButtonGroup = styled.div`
   display: flex;
   gap: 1rem;
@@ -2071,58 +1558,42 @@ const ButtonGroup = styled.div`
   @media (max-width: 576px) {
     flex-direction: column;
   }
+`
 
-  .btn {
-    display: inline-flex;
-    align-items: center;
-    padding: 0.75rem 1.5rem;
-    border-radius: 4px;
-    font-weight: 500;
-    cursor: pointer;
-    transition: all 0.3s ease;
-    
-    svg {
-      margin-left: 0.5rem;
-    }
-    
-    .icon-left {
-      margin-right: 0.5rem;
-      margin-left: 0;
-    }
+const Button = styled.button`
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  padding: 0.75rem 1.5rem;
+  border-radius: 4px;
+  font-weight: 500;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  background: ${(props) => (props.primary ? "#D4AF37" : "transparent")};
+  color: ${(props) => (props.primary ? "black" : "#333")};
+  border: 1px solid ${(props) => (props.primary ? "#D4AF37" : "rgba(0, 0, 0, 0.1)")};
+
+  &:hover {
+    background: ${(props) => (props.primary ? "#C09B2A" : "rgba(0, 0, 0, 0.05)")};
   }
 
-  .btn-gold {
-    background: var(--gold-primary);
-    color: black;
-    border: none;
-
-    &:hover {
-      background: var(--gold-dark);
-    }
-
-    &:disabled {
-      opacity: 0.5;
-      cursor: not-allowed;
-    }
+  &:disabled {
+    opacity: 0.5;
+    cursor: not-allowed;
   }
 
-  .btn-outline {
-    background: transparent;
-    color: black;
-    border: 1px solid black;
-
-    &:hover {
-      background: rgba(0, 0, 0, 0.05);
-    }
+  svg {
+    margin-left: ${(props) => (props.children && typeof props.children !== "string" ? "0" : "0.5rem")};
+    margin-right: ${(props) => (props.children && typeof props.children !== "string" ? "0.5rem" : "0")};
   }
 `
 
 // Select Garments Step Components
 const SelectGarmentsStep = styled.div`
   h2 {
-    font-size: 2rem;
+    font-size: 1.8rem;
     margin-bottom: 1rem;
-    color: black;
+    color: #333;
   }
 
   p {
@@ -2142,14 +1613,14 @@ const GarmentCategories = styled.div`
 const GarmentCategory = styled.div`
   padding: 0.5rem 1.5rem;
   border-radius: 30px;
-  background: ${(props) => (props.active ? "var(--gold-primary)" : "transparent")};
+  background: ${(props) => (props.active ? "#D4AF37" : "transparent")};
   color: ${(props) => (props.active ? "black" : "rgba(0, 0, 0, 0.7)")};
-  border: 1px solid ${(props) => (props.active ? "var(--gold-primary)" : "rgba(0, 0, 0, 0.1)")};
+  border: 1px solid ${(props) => (props.active ? "#D4AF37" : "rgba(0, 0, 0, 0.1)")};
   cursor: pointer;
   transition: all 0.3s ease;
 
   &:hover {
-    border-color: var(--gold-primary);
+    border-color: #D4AF37;
   }
 `
 
@@ -2166,7 +1637,7 @@ const GarmentCard = styled.div`
   box-shadow: 0 4px 10px rgba(0, 0, 0, 0.05);
   cursor: pointer;
   transition: all 0.3s ease;
-  border: 2px solid ${(props) => (props.selected ? "var(--gold-primary)" : "transparent")};
+  border: 2px solid ${(props) => (props.selected ? "#D4AF37" : "transparent")};
 
   &:hover {
     transform: translateY(-5px);
@@ -2193,7 +1664,7 @@ const SelectedBadge = styled.div`
   width: 30px;
   height: 30px;
   border-radius: 50%;
-  background: var(--gold-primary);
+  background: #D4AF37;
   display: flex;
   align-items: center;
   justify-content: center;
@@ -2207,14 +1678,14 @@ const GarmentInfo = styled.div`
   h3 {
     font-size: 1rem;
     margin-bottom: 0.5rem;
-    color: black;
+    color: #333;
     white-space: nowrap;
     overflow: hidden;
     text-overflow: ellipsis;
   }
 
   .price {
-    color: var(--gold-primary);
+    color: #D4AF37;
     font-weight: 600;
     margin-bottom: 0.25rem;
   }
@@ -2235,7 +1706,7 @@ const GarmentDetails = styled.div`
   h3 {
     font-size: 1.5rem;
     margin-bottom: 1rem;
-    color: black;
+    color: #333;
   }
   
   .description {
@@ -2256,7 +1727,7 @@ const GarmentDetails = styled.div`
   h4 {
     font-size: 1rem;
     margin-bottom: 0.5rem;
-    color: black;
+    color: #333;
   }
   
   .sizes {
@@ -2265,125 +1736,6 @@ const GarmentDetails = styled.div`
     flex-wrap: wrap;
   }
   
-  .colors {
-    display: flex;
-    gap: 0.5rem;
-    flex-wrap: wrap;
-  }
-`
-
-// Try On Step Components
-const TryOnStep = styled.div`
-  h2 {
-    font-size: 2rem;
-    margin-bottom: 1rem;
-    color: black;
-  }
-
-  p {
-    color: rgba(0, 0, 0, 0.7);
-    margin-bottom: 2rem;
-    max-width: 700px;
-  }
-`
-
-const TryOnContainer = styled.div`
-  display: grid;
-  grid-template-columns: 1fr 1fr;
-  gap: 2rem;
-  margin-bottom: 2rem;
-
-  @media (max-width: 768px) {
-    grid-template-columns: 1fr;
-  }
-`
-
-const TryOnViewer = styled.div`
-  .try-on-image {
-    width: 100%;
-    height: 500px;
-    background: #f5f5f5;
-    border-radius: 8px;
-    overflow: hidden;
-    margin-bottom: 1rem;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-  }
-`
-
-const TryOnControls = styled.div`
-  display: flex;
-  justify-content: center;
-  gap: 1rem;
-
-  button {
-    display: flex;
-    align-items: center;
-    padding: 0.5rem 1rem;
-    border-radius: 4px;
-    background: rgba(0, 0, 0, 0.05);
-    border: none;
-    color: rgba(0, 0, 0, 0.7);
-    cursor: pointer;
-    transition: all 0.3s ease;
-
-    svg {
-      margin-right: 0.5rem;
-    }
-
-    &:hover {
-      background: rgba(0, 0, 0, 0.1);
-    }
-  }
-`
-
-const TryOnOptions = styled.div``
-
-const TryOnInfo = styled.div`
-  h3 {
-    font-size: 1.5rem;
-    margin-bottom: 0.5rem;
-    color: black;
-  }
-
-  .price {
-    font-size: 1.2rem;
-    color: var(--gold-primary);
-    font-weight: 600;
-    margin-bottom: 1rem;
-  }
-
-  .description {
-    color: rgba(0, 0, 0, 0.7);
-    margin-bottom: 1.5rem;
-    line-height: 1.6;
-  }
-
-  h4 {
-    font-size: 1rem;
-    margin-bottom: 0.5rem;
-    color: black;
-    display: flex;
-    align-items: center;
-    
-    svg {
-      margin-left: 0.5rem;
-      color: rgba(0, 0, 0, 0.5);
-      cursor: pointer;
-    }
-  }
-
-  .size-selector, .color-selector {
-    margin-bottom: 1.5rem;
-  }
-
-  .sizes {
-    display: flex;
-    gap: 0.5rem;
-    flex-wrap: wrap;
-  }
-
   .colors {
     display: flex;
     gap: 0.5rem;
@@ -2395,17 +1747,27 @@ const SizeOption = styled.div`
   width: 40px;
   height: 40px;
   border-radius: 4px;
-  border: 1px solid ${(props) => (props.active ? "var(--gold-primary)" : "rgba(0, 0, 0, 0.1)")};
-  background: ${(props) => (props.active ? "var(--gold-primary)" : "transparent")};
-  color: ${(props) => (props.active ? "black" : "rgba(0, 0, 0, 0.7)")};
+  border: 1px solid ${(props) => {
+    if (props.recommended) return "#2ecc71"
+    return props.active ? "#D4AF37" : "rgba(0, 0, 0, 0.1)"
+  }};
+  background: ${(props) => {
+    if (props.recommended) return "rgba(46, 204, 113, 0.1)"
+    return props.active ? "#D4AF37" : "transparent"
+  }};
+  color: ${(props) => {
+    if (props.recommended && !props.active) return "#2ecc71"
+    return props.active ? "black" : "rgba(0, 0, 0, 0.7)"
+  }};
   display: flex;
   align-items: center;
   justify-content: center;
   cursor: pointer;
   transition: all 0.3s ease;
+  font-weight: ${(props) => (props.recommended ? "bold" : "normal")};
 
   &:hover {
-    border-color: var(--gold-primary);
+    border-color: #D4AF37;
   }
 `
 
@@ -2415,7 +1777,7 @@ const ColorOption = styled.div`
   border-radius: 50%;
   background-color: ${(props) => props.color};
   cursor: pointer;
-  border: 2px solid ${(props) => (props.active ? "var(--gold-primary)" : "transparent")};
+  border: 2px solid ${(props) => (props.active ? "#D4AF37" : "transparent")};
   transition: all 0.3s ease;
 
   &:hover {
@@ -2423,8 +1785,90 @@ const ColorOption = styled.div`
   }
 `
 
-const FitAnalysis = styled.div`
+// Fit Analysis Step Components
+const FitAnalysisStep = styled.div`
+  h2 {
+    font-size: 1.8rem;
+    margin-bottom: 1rem;
+    color: #333;
+  }
+
+  p {
+    color: rgba(0, 0, 0, 0.7);
+    margin-bottom: 2rem;
+    max-width: 700px;
+  }
+`
+
+const FitAnalysisContainer = styled.div`
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 2rem;
   margin-bottom: 2rem;
+
+  @media (max-width: 768px) {
+    grid-template-columns: 1fr;
+  }
+`
+
+const ProductPreview = styled.div`
+  text-align: center;
+  
+  img {
+    max-width: 100%;
+    max-height: 400px;
+    border-radius: 8px;
+    margin-bottom: 1rem;
+  }
+`
+
+const ProductInfo = styled.div`
+  h3 {
+    font-size: 1.5rem;
+    margin-bottom: 0.5rem;
+    color: #333;
+  }
+
+  .price {
+    font-size: 1.2rem;
+    color: #D4AF37;
+    font-weight: 600;
+    margin-bottom: 0.5rem;
+  }
+
+  .size {
+    margin-bottom: 0.5rem;
+  }
+`
+
+const ColorSwatch = styled.div`
+  width: 30px;
+  height: 30px;
+  border-radius: 50%;
+  background-color: ${(props) => props.color};
+  margin: 0 auto;
+  border: 2px solid rgba(0, 0, 0, 0.1);
+`
+
+const FitDetails = styled.div`
+`
+
+const FitSummary = styled.div`
+  margin-bottom: 2rem;
+  
+  h3 {
+    font-size: 1.2rem;
+    margin-bottom: 1rem;
+    color: #333;
+    display: flex;
+    align-items: center;
+    
+    svg {
+      margin-left: 0.5rem;
+      color: rgba(0, 0, 0, 0.5);
+      cursor: pointer;
+    }
+  }
 `
 
 const FitBar = styled.div`
@@ -2439,7 +1883,7 @@ const FitIndicator = styled.div`
   position: absolute;
   width: 16px;
   height: 16px;
-  background: var(--gold-primary);
+  background: #D4AF37;
   border-radius: 50%;
   top: 50%;
   left: ${(props) => props.position}%;
@@ -2463,7 +1907,7 @@ const FitMessage = styled.div`
   margin-bottom: 1rem;
 `
 
-const FitDetails = styled.div`
+const FitMeasurements = styled.div`
   .fit-detail {
     display: flex;
     align-items: center;
@@ -2497,43 +1941,23 @@ const FitMeter = styled.div`
   }
 `
 
-const ColorAnalysis = styled.div`
+const SizeRecommendation = styled.div`
   margin-bottom: 2rem;
-`
-
-const ColorMatchBar = styled.div`
-  height: 8px;
-  background: rgba(0, 0, 0, 0.1);
-  border-radius: 4px;
-  position: relative;
-  margin-bottom: 0.5rem;
-`
-
-const ColorMatchIndicator = styled.div`
-  position: absolute;
-  width: 16px;
-  height: 16px;
-  background: var(--gold-primary);
-  border-radius: 50%;
-  top: 50%;
-  left: ${(props) => props.score}%;
-  transform: translate(-50%, -50%);
-`
-
-const ColorMatchLabels = styled.div`
-  display: flex;
-  justify-content: space-between;
-  font-size: 0.8rem;
-  color: rgba(0, 0, 0, 0.5);
-  margin-bottom: 1rem;
-`
-
-const ColorMatchMessage = styled.div`
-  padding: 1rem;
-  background: rgba(212, 175, 55, 0.1);
-  border-radius: 4px;
-  font-size: 0.9rem;
-  color: rgba(0, 0, 0, 0.7);
+  
+  h3 {
+    font-size: 1.2rem;
+    margin-bottom: 0.5rem;
+    color: #333;
+  }
+  
+  p {
+    margin-bottom: 1rem;
+  }
+  
+  .size-options {
+    display: flex;
+    gap: 0.5rem;
+  }
 `
 
 // Additional styled components for loading and error states
@@ -2547,8 +1971,8 @@ const LoadingIndicator = styled.div`
 `
 
 const ErrorMessage = styled.div`
-  background-color: rgba(255, 0, 0, 0.1);
-  color: #d32f2f;
+  background-color: rgba(231, 76, 60, 0.1);
+  color: #e74c3c;
   padding: 1rem;
   border-radius: 8px;
   margin-bottom: 2rem;
@@ -2564,20 +1988,14 @@ const NoGarmentsMessage = styled.div`
 
 // Features Section Components
 const FeaturesSection = styled.section`
-  padding: 5rem 0;
+  padding: 4rem 2rem;
   background: rgba(0, 0, 0, 0.02);
-
-  .container {
-    max-width: 1200px;
-    margin: 0 auto;
-    padding: 0 1.5rem;
-  }
+  text-align: center;
 
   h2 {
-    font-size: 2.5rem;
+    font-size: 2rem;
     margin-bottom: 3rem;
-    text-align: center;
-    color: black;
+    color: #333;
   }
 `
 
@@ -2585,6 +2003,8 @@ const FeaturesGrid = styled.div`
   display: grid;
   grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
   gap: 2rem;
+  max-width: 1200px;
+  margin: 0 auto;
 `
 
 const FeatureCard = styled.div`
@@ -2592,7 +2012,6 @@ const FeatureCard = styled.div`
   border-radius: 8px;
   padding: 2rem;
   box-shadow: 0 10px 30px rgba(0, 0, 0, 0.05);
-  text-align: center;
   transition: all 0.3s ease;
 
   &:hover {
@@ -2601,9 +2020,9 @@ const FeatureCard = styled.div`
   }
 
   h3 {
-    font-size: 1.5rem;
+    font-size: 1.3rem;
     margin-bottom: 1rem;
-    color: black;
+    color: #333;
   }
 
   p {
@@ -2613,8 +2032,8 @@ const FeatureCard = styled.div`
 `
 
 const FeatureIcon = styled.div`
-  width: 70px;
-  height: 70px;
+  width: 60px;
+  height: 60px;
   border-radius: 50%;
   background: rgba(212, 175, 55, 0.1);
   display: flex;
@@ -2623,8 +2042,7 @@ const FeatureIcon = styled.div`
   margin: 0 auto 1.5rem;
 
   svg {
-    font-size: 2rem;
-    color: var(--gold-primary);
+    color: #D4AF37;
   }
 `
 

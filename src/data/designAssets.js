@@ -1,4 +1,5 @@
 // Font options for the text editor
+import image1 from '../assets/images/suit.jpg'
 export const fonts = [
     { name: "Arial", family: "Arial, sans-serif" },
     { name: "Times New Roman", family: "Times New Roman, serif" },
@@ -66,10 +67,10 @@ export const fonts = [
     {
       id: 1,
       name: "T-Shirt",
-      image:
-        "https://images.unsplash.com/photo-1521572163474-6864f9cf17ab?ixlib=rb-4.0.3&ixid=MnwxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8&auto=format&fit=crop&w=1480&q=80",
-      template:
-        "https://purepng.com/public/uploads/large/purepng.com-white-t-shirtt-shirtfabrict-shapegramnetscotton-fabricclothing-1421526429676sil2r.png",
+      image:image1,
+       
+      template:image1,
+
     },
     {
       id: 2,
