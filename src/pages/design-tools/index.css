@@ -1,0 +1,60 @@
+:root {
+    --gold-primary: #d4af37;
+    --gold-light: #f5e7a3;
+    --gold-dark: #a67c00;
+    --luxury-black: #0a0a0a;
+  }
+  
+  body {
+    margin: 0;
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", "Roboto", "Oxygen", "Ubuntu", "Cantarell", "Fira Sans",
+      "Droid Sans", "Helvetica Neue", sans-serif;
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+  }
+  
+  .container {
+    width: 100%;
+    max-width: 1200px;
+    margin: 0 auto;
+    padding: 0 15px;
+  }
+  
+  /* Button styles */
+  .btn {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    padding: 0.75rem 1.5rem;
+    border-radius: 4px;
+    font-weight: 500;
+    cursor: pointer;
+    transition: all 0.3s ease;
+  }
+  
+  .btn-gold {
+    background: var(--gold-primary);
+    color: black;
+    border: none;
+  }
+  
+  .btn-gold:hover {
+    background: var(--gold-dark);
+  }
+  
+  .btn-gold:disabled {
+    opacity: 0.5;
+    cursor: not-allowed;
+  }
+  
+  .btn-outline {
+    background: transparent;
+    color: black;
+    border: 1px solid black;
+  }
+  
+  .btn-outline:hover {
+    background: rgba(0, 0, 0, 0.05);
+  }
+  
+  

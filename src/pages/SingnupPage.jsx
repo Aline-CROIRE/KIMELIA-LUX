@@ -1,9 +1,10 @@
-// src/pages/SignupPage.jsx
 import React, { useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import styled from 'styled-components';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
-import { faEye, faEyeSlash } from '@fortawesome/free-solid-svg-icons';
+import { faEye, faEyeSlash, faCheckCircle } from '@fortawesome/free-solid-svg-icons';
+import { toast, ToastContainer } from 'react-toastify';
+import 'react-toastify/dist/ReactToastify.css';
 
 const SignupPage = ({ onClose, onSwitchToLogin }) => {
   const [formData, setFormData] = useState({
@@ -17,6 +18,7 @@ const SignupPage = ({ onClose, onSwitchToLogin }) => {
   });
 
   const [error, setError] = useState('');
+  const [loading, setLoading] = useState(false);
   const navigate = useNavigate();
   const [showPassword, setShowPassword] = useState(false);
   const [showConfirmPassword, setShowConfirmPassword] = useState(false);
@@ -37,10 +39,11 @@ const SignupPage = ({ onClose, onSwitchToLogin }) => {
     });
   };
 
-  const handleSubmit = (e) => {
+  const handleSubmit = async (e) => {
     e.preventDefault();
+    setError('');
 
-    // Simple validation checks (can be expanded)
+    // Simple validation checks
     if (!formData.firstName || !formData.lastName) {
       setError('Please enter your first and last name.');
       return;
@@ -81,31 +84,57 @@ const SignupPage = ({ onClose, onSwitchToLogin }) => {
       return;
     }
 
-    // Simulate signup process (replace with actual API call)
-    console.log('Signup attempt with:', formData);
+    // Prepare data for API
+    const apiData = {
+      firstName: formData.firstName,
+      lastName: formData.lastName,
+      email: formData.email,
+      password: formData.password,
+      role: formData.role === 'customer' ? 'customer' : formData.role // Map 'customer' to 'user' for API
+    };
 
-    // Here you would typically call an API to create a new user
-    // Example:
-    // api.signup(formData)
-    //  .then(response => {
-    //    console.log('Signup successful', response);
-    //    navigate('/'); // Redirect on success
-    //    onClose();
-    //  })
-    //  .catch(error => {
-    //    console.error('Signup failed', error);
-    //    setError('Signup failed. Please try again.'); // Provide a general error message
-    //  });
+    try {
+      setLoading(true);
+      
+      // Make API call to register endpoint
+      const response = await fetch('https://kimelia-api.onrender.com/api/auth/register', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json'
+        },
+        body: JSON.stringify(apiData)
+      });
 
-    // For this example, let's just simulate success:
-    setTimeout(() => { // Simulate API delay
-      onClose(); // Close the modal
-      navigate('/'); // Redirect to home page
-    }, 500);
+      const data = await response.json();
+
+      if (!response.ok) {
+        throw new Error(data.message || 'Registration failed');
+      }
+
+      // Show success notification
+      toast.success('Registration successful! Redirecting to login...', {
+        position: "top-center",
+        autoClose: 3000
+      });
+
+      // Wait for toast to be visible before redirecting
+      setTimeout(() => {
+        setLoading(false);
+        onSwitchToLogin(); // Switch to login overlay
+      }, 3000);
+      
+    } catch (error) {
+      setLoading(false);
+      setError(error.message || 'Registration failed. Please try again.');
+      toast.error(error.message || 'Registration failed', {
+        position: "top-center"
+      });
+    }
   };
 
   return (
     <Overlay>
+      <ToastContainer />
       <ModalWrapper>
         <ModalContent>
           <CloseButton onClick={onClose} aria-label="Close">×</CloseButton>
@@ -129,6 +158,7 @@ const SignupPage = ({ onClose, onSwitchToLogin }) => {
                   onChange={handleChange}
                   required
                   placeholder="Enter first name"
+                  disabled={loading}
                 />
               </FormGroup>
 
@@ -142,6 +172,7 @@ const SignupPage = ({ onClose, onSwitchToLogin }) => {
                   onChange={handleChange}
                   required
                   placeholder="Enter last name"
+                  disabled={loading}
                 />
               </FormGroup>
             </NameFieldsContainer>
@@ -156,6 +187,7 @@ const SignupPage = ({ onClose, onSwitchToLogin }) => {
                 onChange={handleChange}
                 required
                 placeholder="Enter your email"
+                disabled={loading}
               />
             </FormGroup>
 
@@ -171,6 +203,7 @@ const SignupPage = ({ onClose, onSwitchToLogin }) => {
                     onChange={handleChange}
                     required
                     placeholder="Enter your password"
+                    disabled={loading}
                   />
                   <PasswordToggle onClick={togglePasswordVisibility}>
                     <FontAwesomeIcon icon={showPassword ? faEyeSlash : faEye} />
@@ -191,6 +224,7 @@ const SignupPage = ({ onClose, onSwitchToLogin }) => {
                     onChange={handleChange}
                     required
                     placeholder="Confirm your password"
+                    disabled={loading}
                   />
                   <PasswordToggle onClick={toggleConfirmPasswordVisibility}>
                     <FontAwesomeIcon icon={showConfirmPassword ? faEyeSlash : faEye} />
@@ -206,7 +240,8 @@ const SignupPage = ({ onClose, onSwitchToLogin }) => {
                   <RoleOption
                     key={role}
                     selected={formData.role === role}
-                    onClick={() => setFormData({ ...formData, role })}
+                    onClick={() => !loading && setFormData({ ...formData, role })}
+                    disabled={loading}
                   >
                     <RoleTitle>{role.charAt(0).toUpperCase() + role.slice(1)}</RoleTitle>
                   </RoleOption>
@@ -221,6 +256,7 @@ const SignupPage = ({ onClose, onSwitchToLogin }) => {
                 name="agreeTerms"
                 checked={formData.agreeTerms}
                 onChange={handleChange}
+                disabled={loading}
               />
               <label htmlFor="agreeTerms">
                 I agree to the <TermsLink to="/terms">Terms</TermsLink> and{' '}
@@ -228,13 +264,14 @@ const SignupPage = ({ onClose, onSwitchToLogin }) => {
               </label>
             </CheckboxGroup>
 
-            <SubmitButton type="submit">Create Account</SubmitButton>
+            <SubmitButton type="submit" disabled={loading}>
+              {loading ? 'Creating Account...' : 'Create Account'}
+            </SubmitButton>
           </FormWrapper>
 
-          {/* Added Login Option */}
           <LoginPrompt>
             Already have an account?{' '}
-            <LoginLink onClick={onSwitchToLogin}>Log in</LoginLink>
+            <LoginLink onClick={onSwitchToLogin} disabled={loading}>Log in</LoginLink>
           </LoginPrompt>
         </ModalContent>
       </ModalWrapper>
@@ -242,7 +279,7 @@ const SignupPage = ({ onClose, onSwitchToLogin }) => {
   );
 };
 
-// ✅ Styled Components (Updated Overlay Styles)
+// Styled Components
 const Overlay = styled.div`
   position: fixed;
   top: 0;
@@ -256,14 +293,13 @@ const Overlay = styled.div`
   z-index: 1000;
 `;
 
-// 🔥 Other styled components remain the same.
 const ModalWrapper = styled.div`
   display: flex;
   justify-content: center;
   align-items: center;
   width: 100%;
-  max-height: 100vh; /* Changed to 100vh to prevent height overflow */
-  overflow: hidden; /* Hide scrollbars on the ModalWrapper */
+  max-height: 100vh;
+  overflow: hidden;
 `;
 
 const ModalContent = styled.div`
@@ -272,8 +308,8 @@ const ModalContent = styled.div`
   border-radius: 10px;
   width: 90%;
   max-width: 500px;
-  max-height: 90vh; /* Changed to 90vh to prevent height overflow */
-  overflow: hidden; /* Hide scrollbars on the ModalContent */
+  max-height: 90vh;
+  overflow: hidden;
   position: relative;
   display: flex;
   flex-direction: column;
@@ -308,15 +344,15 @@ const FormWrapper = styled.form`
   display: flex;
   flex-direction: column;
   gap: 1.5rem;
-  flex: 1; /* Important: Allow FormWrapper to take up available vertical space */
-  overflow: auto; /* Add scroll to the FormWrapper if content overflows */
-  padding-right: 1rem; /* Add padding to avoid content touching the scrollbar */
+  flex: 1;
+  overflow: auto;
+  padding-right: 1rem;
 
-  &::-webkit-scrollbar { /* Targetting WebKit browsers like Chrome, Safari */
-    width: 0 !important; /* Hide the scrollbar */
+  &::-webkit-scrollbar {
+    width: 0 !important;
   }
-  scrollbar-width: none; /* Targetting Firefox */
-  -ms-overflow-style: none; /* Targetting IE */
+  scrollbar-width: none;
+  -ms-overflow-style: none;
 `;
 
 const NameFieldsContainer = styled.div`
@@ -355,6 +391,11 @@ const Input = styled.input`
   &::placeholder {
     color: #999;
   }
+
+  &:disabled {
+    background-color: #f5f5f5;
+    cursor: not-allowed;
+  }
 `;
 
 const RoleSelectionContainer = styled.div`
@@ -368,13 +409,14 @@ const RoleOption = styled.div`
   border-radius: 5px;
   border: 2px solid ${({ selected }) => (selected ? '#D4AF37' : '#ccc')};
   text-align: center;
-  cursor: pointer;
+  cursor: ${props => props.disabled ? 'not-allowed' : 'pointer'};
   flex: 1;
   transition: all 0.2s ease-in-out;
+  opacity: ${props => props.disabled ? 0.7 : 1};
 
   &:hover {
-    transform: translateY(-2px);
-    box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+    transform: ${props => props.disabled ? 'none' : 'translateY(-2px)'};
+    box-shadow: ${props => props.disabled ? 'none' : '0 2px 5px rgba(0, 0, 0, 0.1)'};
   }
 `;
 
@@ -408,16 +450,17 @@ const SubmitButton = styled.button`
   background: #D4AF37;
   color: white;
   font-size: 18px;
-  cursor: pointer;
+  cursor: ${props => props.disabled ? 'not-allowed' : 'pointer'};
   transition: background 0.2s ease-in-out;
+  opacity: ${props => props.disabled ? 0.7 : 1};
 
   &:hover {
-    background: #C09A30;
+    background: ${props => props.disabled ? '#D4AF37' : '#C09A30'};
   }
 
   &:active {
-    transform: translateY(1px);
-    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.15);
+    transform: ${props => props.disabled ? 'none' : 'translateY(1px)'};
+    box-shadow: ${props => props.disabled ? 'none' : '0 1px 3px rgba(0, 0, 0, 0.15)'};
   }
 `;
 
@@ -465,14 +508,15 @@ const LoginLink = styled.button`
   background: none;
   border: none;
   color: #D4AF37;
-  cursor: pointer;
+  cursor: ${props => props.disabled ? 'not-allowed' : 'pointer'};
   padding: 0;
   font-size: inherit;
   font-family: inherit;
   text-decoration: none;
+  opacity: ${props => props.disabled ? 0.7 : 1};
 
   &:hover {
-    text-decoration: underline;
+    text-decoration: ${props => props.disabled ? 'none' : 'underline'};
   }
 `;
 

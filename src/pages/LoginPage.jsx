@@ -1,44 +1,133 @@
-// src/pages/LoginPage.jsx
 import React, { useState } from 'react';
 import styled from 'styled-components';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faEye, faEyeSlash } from '@fortawesome/free-solid-svg-icons';
+import { useNavigate } from 'react-router-dom';
 
-const LoginPage = ({ onClose, onSwitchToSignup }) => {
+const LoginPage = ({ onClose, onSwitchToSignup, onLoginSuccess }) => {
     const [email, setEmail] = useState('');
     const [password, setPassword] = useState('');
     const [rememberMe, setRememberMe] = useState(false);
     const [error, setError] = useState('');
     const [showPassword, setShowPassword] = useState(false);
+    const [loading, setLoading] = useState(false);
+    const [loginAttempts, setLoginAttempts] = useState(0);
+    const [isBlocked, setIsBlocked] = useState(false);
+
+    const navigate = useNavigate();
 
     const togglePasswordVisibility = () => {
         setShowPassword(!showPassword);
     };
 
-    const handleSubmit = (e) => {
+    const handleSubmit = async (e) => {
         e.preventDefault();
+        setError('');
+
+        if (isBlocked) {
+            setError('Too many failed login attempts. Please try again later.');
+            return;
+        }
+
+        setLoading(true);
 
         if (!email) {
             setError('Please enter your email address.');
+            setLoading(false);
             return;
         }
 
         if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) {
             setError('Please enter a valid email address.');
+            setLoading(false);
             return;
         }
 
         if (!password) {
             setError('Please enter your password.');
+            setLoading(false);
             return;
         }
 
-        console.log('Login attempt with:', { email, password, rememberMe });
+        try {
+            const response = await fetch('https://kimelia-api.onrender.com/api/auth/login', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify({ email, password }),
+            });
 
-        // Simulate success:
-        setTimeout(() => {
+            const data = await response.json();
+
+            if (!response.ok) {
+                setError(data.message || 'Login failed. Please try again.');
+                setLoading(false);
+
+                setLoginAttempts((prevAttempts) => {
+                    const newAttempts = prevAttempts + 1;
+                    if (newAttempts >= 3) {
+                        setIsBlocked(true);
+                        setTimeout(() => {
+                            setIsBlocked(false);
+                            setLoginAttempts(0);
+                        }, 60000);
+                    }
+                    return newAttempts;
+                });
+                return;
+            }
+
+            console.log('Login successful', data);
+
+            // Construct the full name from firstName and lastName
+            const fullName = `${data.firstName} ${data.lastName}`;
+
+            // Store the full name in localStorage
+            localStorage.setItem('username', fullName);
+
+            // Call the login success handler with the full name
+            if(onLoginSuccess){ // add conditional check here
+              onLoginSuccess(fullName);
+            } else {
+              console.warn("onLoginSuccess prop is not a function")
+            }
+
+            localStorage.setItem('token', data.token);
+
+            setLoginAttempts(0);
+            setIsBlocked(false);
+
+            const userRole = data.role;
+            let redirectPath = '/'; // Default redirect path
+
+            switch (userRole) {
+                case 'customer':
+                    redirectPath = '/';
+                    break;
+                case 'designer':
+                    redirectPath = '/designer/dashboard';
+                    break;
+                case 'seller':
+                    redirectPath = '/seller/dashboard';
+                    break;
+                case 'admin':
+                    redirectPath = '/dashboard';
+                    break;
+                default:
+                    redirectPath = '/';
+                    break;
+            }
+
+            navigate(redirectPath);
             onClose();
-        }, 500);
+        } catch (error) {
+            console.error('Login failed', error);
+            setError('Login failed. Please try again.');
+            setLoading(false);
+        } finally {
+            setLoading(false);
+        }
     };
 
     return (
@@ -54,6 +143,7 @@ const LoginPage = ({ onClose, onSwitchToSignup }) => {
                 {error && <ErrorMessage>{error}</ErrorMessage>}
 
                 <Form onSubmit={handleSubmit}>
+                    {/* Form inputs remain the same */}
                     <FormGroup>
                         <Label htmlFor="email">Email</Label>
                         <Input
@@ -64,6 +154,7 @@ const LoginPage = ({ onClose, onSwitchToSignup }) => {
                             onChange={(e) => setEmail(e.target.value)}
                             placeholder="Enter your email"
                             required
+                            disabled={isBlocked}
                         />
                     </FormGroup>
 
@@ -79,6 +170,7 @@ const LoginPage = ({ onClose, onSwitchToSignup }) => {
                                     onChange={(e) => setPassword(e.target.value)}
                                     placeholder="Enter your password"
                                     required
+                                    disabled={isBlocked}
                                 />
                                 <PasswordToggle onClick={togglePasswordVisibility}>
                                     <FontAwesomeIcon icon={showPassword ? faEyeSlash : faEye} />
@@ -94,15 +186,21 @@ const LoginPage = ({ onClose, onSwitchToSignup }) => {
                             name="rememberMe"
                             checked={rememberMe}
                             onChange={(e) => setRememberMe(e.target.checked)}
+                            disabled={isBlocked}
                         />
                         <label htmlFor="rememberMe">Remember me</label>
                     </CheckboxGroup>
 
-                    <SubmitButton type="submit">Sign In</SubmitButton>
+
+                    <SubmitButton type="submit" disabled={loading || isBlocked}>
+                        {loading ? 'Signing In...' : (isBlocked ? 'Blocked' : 'Sign In')}
+                    </SubmitButton>
+
                 </Form>
 
                 <Footer>
-                    Don't have an account? <SignupLink onClick={onSwitchToSignup}>Sign up</SignupLink></Footer>
+                    Don't have an account? <SignupLink onClick={onSwitchToSignup}>Sign up</SignupLink>
+                </Footer>
             </ModalContent>
         </Overlay>
     );
@@ -242,6 +340,11 @@ const SubmitButton = styled.button`
   &:active {
     transform: translateY(1px);
     box-shadow: 0 1px 3px rgba(0, 0, 0, 0.15);
+  }
+
+  &:disabled {  // Add disabled styles
+    background: #cccccc;
+    cursor: not-allowed;
   }
 `;
 

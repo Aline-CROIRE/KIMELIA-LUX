@@ -1,8 +1,8 @@
 // src/components/common/Navbar.jsx
-import React, { useState } from 'react';
-import { Link } from 'react-router-dom';
+import React, { useState, useEffect, useCallback } from 'react';
+import { Link, useNavigate } from 'react-router-dom';
 import styled from 'styled-components';
-import { FiMenu, FiX, FiUser, FiHeart, FiShoppingBag, FiPhone, FiSun, FiMoon } from 'react-icons/fi';
+import { FiMenu, FiX, FiUser, FiHeart, FiShoppingBag, FiPhone, FiSun, FiMoon, FiLogOut } from 'react-icons/fi';
 import logo from '../../assets/images/logo.png';
 import PropTypes from 'prop-types';
 import LoginPage from '../../pages/LoginPage';
@@ -197,115 +197,198 @@ const CloseButton = styled.button`
   }
 `;
 
+const ProfileMenu = styled.div`
+  position: absolute;
+  top: 40px;
+  right: 0;
+  background: white;
+  border-radius: 8px;
+  box-shadow: 0 4px 10px rgba(0, 0, 0, 0.2);
+  display: ${props => (props.isOpen ? 'block' : 'none')};
+  min-width: 150px;
+  padding: 0.5rem 0;
+  z-index: 1001;
+
+  button {
+    display: block;
+    padding: 10px;
+    text-align: center;
+    color: ${props => props.theme.colors.black.main};
+    text-decoration: none;
+    font-size: 0.9rem;
+    transition: background 0.3s ease;
+    background: none;
+    border: none;
+    cursor: pointer;
+
+    &:hover {
+      background: ${props => props.theme.colors.gray.light};
+    }
+  }
+`;
+
 
 const Navbar = ({ isDarkMode, toggleDarkMode }) => {
-  const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
-  const [isUserMenuOpen, setIsUserMenuOpen] = useState(false);
-  const [showModal, setShowModal] = useState(null); // 'login' or 'signup' or null
+    const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
+    const [isUserMenuOpen, setIsUserMenuOpen] = useState(false);
+    const [showModal, setShowModal] = useState(null);
+    const [isLoggedIn, setIsLoggedIn] = useState(false);
+    const [username, setUsername] = useState(null); // Initialize to null
+    const [profileMenuOpen, setProfileMenuOpen] = useState(false);
+    const navigate = useNavigate();
 
-  const toggleMobileMenu = () => setIsMobileMenuOpen(prev => !prev);
-  const toggleUserMenu = () => setIsUserMenuOpen(prev => !prev);
+    // Use useCallback to memoize handleLoginSuccess
+    const handleLoginSuccess = useCallback((username) => {
+        setIsLoggedIn(true);
+        setUsername(username);
+    }, []);
 
-  const openLoginModal = (e) => {
-    e.preventDefault();
-    setIsUserMenuOpen(false);
-    setShowModal('login');
-  };
+    useEffect(() => {
+        const storedToken = localStorage.getItem('token');
+        const storedUsername = localStorage.getItem('username');
+        if (storedToken && storedUsername) {
+            setIsLoggedIn(true);
+            setUsername(storedUsername);
+        } else {
+            setIsLoggedIn(false);  // Ensure isLoggedIn is false if no token/username
+            setUsername(null);  // Ensure username is null if no token/username
+        }
+    }, []);  // Empty dependency array means this runs only once on mount
 
-  const openSignupModal = (e) => {
-    e.preventDefault();
-    setIsUserMenuOpen(false);
-    setShowModal('signup');
-  };
+    const toggleMobileMenu = () => setIsMobileMenuOpen(prev => !prev);
+    const toggleUserMenu = () => setIsUserMenuOpen(prev => !prev);
+    const toggleProfileMenu = () => setProfileMenuOpen(!profileMenuOpen);
 
-  const closeModal = () => setShowModal(null);
+    const openLoginModal = (e) => {
+        e.preventDefault();
+        setIsUserMenuOpen(false);
+        setShowModal('login');
+    };
 
-  // Switching between login and signup
-  const switchToSignup = () => setShowModal('signup');
-  const switchToLogin = () => setShowModal('login');
+    const openSignupModal = (e) => {
+        e.preventDefault();
+        setIsUserMenuOpen(false);
+        setShowModal('signup');
+    };
 
+    const closeModal = () => setShowModal(null);
 
-  return (
-    <NavbarContainer>
-      <NavContent>
-        <LogoContainer to="/">
-          <LogoImage src={logo} alt="KIMELIA LUXE logo" />
-          <LogoText>KIMELIA LUXE</LogoText>
-        </LogoContainer>
+    const switchToSignup = () => setShowModal('signup');
+    const switchToLogin = () => setShowModal('login');
 
-        <NavLinks>
-          <NavLink to="/">Home</NavLink>
-          <NavLink to="/design-tools">Design Tools</NavLink>
-          <NavLink to="/marketplace">Marketplace</NavLink>
-          <NavLink to="/about">About</NavLink>
-        </NavLinks>
+    const handleLogout = () => {
+        localStorage.removeItem('token');
+        localStorage.removeItem('username');
+        setIsLoggedIn(false);
+        setUsername(null);
+        setProfileMenuOpen(false);
+        navigate('/');
+    };
 
-        <NavActions>
-          <IconButton aria-label="User Account" onClick={toggleUserMenu}>
-            <FiUser />
-          </IconButton>
-          <UserMenu isOpen={isUserMenuOpen}>
-            <button onClick={openLoginModal}>Login</button>
-            <button onClick={openSignupModal}>Register</button>
-          </UserMenu>
+    return (
+        <NavbarContainer>
+            <NavContent>
+                <LogoContainer to="/">
+                    <LogoImage src={logo} alt="KIMELIA LUXE logo"/>
+                    <LogoText>KIMELIA LUXE</LogoText>
+                </LogoContainer>
 
-          <IconButton aria-label="Toggle Dark Mode" onClick={toggleDarkMode}>
-            {isDarkMode ? <FiSun /> : <FiMoon />}
-          </IconButton>
+                <NavLinks>
+                    <NavLink to="/">Home</NavLink>
+                    <NavLink to="/design-tools">Design Tools</NavLink>
+                    <NavLink to="/marketplace">Marketplace</NavLink>
+                    <NavLink to="/about">About</NavLink>
+                </NavLinks>
 
-          <IconButton aria-label="Wishlist">
-            <FiHeart />
-          </IconButton>
-          <IconButton aria-label="Shopping Bag">
-            <FiShoppingBag />
-          </IconButton>
+                <NavActions>
+                    {isLoggedIn ? (
+                        <>
+                            <IconButton aria-label="User Account" onClick={toggleProfileMenu}>
+                                {username ? username : 'User'} <FiUser/>
+                            </IconButton>
+                            <ProfileMenu isOpen={profileMenuOpen}>
+                                <button onClick={() => {
+                                    setProfileMenuOpen(false);
+                                    navigate('/profile');
+                                }}>Profile
+                                </button>
+                                <button onClick={handleLogout}>
+                                    <FiLogOut style={{marginRight: '5px'}}/> Logout
+                                </button>
+                            </ProfileMenu>
+                        </>
+                    ) : (
+                        <IconButton aria-label="User Account" onClick={toggleUserMenu}>
+                            <FiUser/>
+                        </IconButton>
+                    )}
 
-          <MobileMenuButton onClick={toggleMobileMenu} aria-label="Menu">
-            {isMobileMenuOpen ? <FiX /> : <FiMenu />}
-          </MobileMenuButton>
-        </NavActions>
-      </NavContent>
+                    {!isLoggedIn && (
+                        <UserMenu isOpen={isUserMenuOpen}>
+                            <button onClick={openLoginModal}>Login</button>
+                            <button onClick={openSignupModal}>Register</button>
+                        </UserMenu>
+                    )}
 
-      <MobileMenu isOpen={isMobileMenuOpen}>
-        <NavLink to="/" onClick={toggleMobileMenu}>Home</NavLink>
-        <NavLink to="/design-tools" onClick={toggleMobileMenu}>Design Tools</NavLink>
-        <NavLink to="/marketplace" onClick={toggleMobileMenu}>Marketplace</NavLink>
-        <NavLink to="/about" onClick={toggleMobileMenu}>About</NavLink>
-        <NavLink to="/login" onClick={toggleMobileMenu}>Login</NavLink>
-        <NavLink to="/signup" onClick={toggleMobileMenu}>Register</NavLink>
-      </MobileMenu>
+                    <IconButton aria-label="Toggle Dark Mode" onClick={toggleDarkMode}>
+                        {isDarkMode ? <FiSun/> : <FiMoon/>}
+                    </IconButton>
 
-      {/* Login Overlay */}
-      {showModal === 'login' && (
-        <Overlay>
-          <ModalContent>
-            <CloseButton onClick={closeModal} aria-label="Close">
-              <FiX />
-            </CloseButton>
-            <LoginPage onClose={closeModal} onSwitchToSignup={switchToSignup} />
-          </ModalContent>
-        </Overlay>
-      )}
+                    <IconButton aria-label="Wishlist">
+                        <FiHeart/>
+                    </IconButton>
+                    <IconButton aria-label="Shopping Bag">
+                        <FiShoppingBag/>
+                    </IconButton>
 
-      {/* Signup Overlay */}
-      {showModal === 'signup' && (
-        <Overlay>
-          <ModalContent>
-            <CloseButton onClick={closeModal} aria-label="Close">
-              <FiX />
-            </CloseButton>
-            <SignupPage onClose={closeModal} onSwitchToLogin={switchToLogin} />
-          </ModalContent>
-        </Overlay>
-      )}
-    </NavbarContainer>
-  );
+                    <MobileMenuButton onClick={toggleMobileMenu} aria-label="Menu">
+                        {isMobileMenuOpen ? <FiX/> : <FiMenu/>}
+                    </MobileMenuButton>
+                </NavActions>
+            </NavContent>
+
+            <MobileMenu isOpen={isMobileMenuOpen}>
+                <NavLink to="/" onClick={toggleMobileMenu}>Home</NavLink>
+                <NavLink to="/design-tools" onClick={toggleMobileMenu}>Design Tools</NavLink>
+                <NavLink to="/marketplace" onClick={toggleMobileMenu}>Marketplace</NavLink>
+                <NavLink to="/about" onClick={toggleMobileMenu}>About</NavLink>
+                {!isLoggedIn && (
+                    <>
+                        <NavLink to="/login" onClick={toggleMobileMenu}>Login</NavLink>
+                        <NavLink to="/signup" onClick={toggleMobileMenu}>Register</NavLink>
+                    </>
+                )}
+            </MobileMenu>
+
+            {showModal === 'login' && (
+                <Overlay>
+                    <ModalContent>
+                        <CloseButton onClick={closeModal} aria-label="Close">
+                            <FiX/>
+                        </CloseButton>
+                        <LoginPage onClose={closeModal} onSwitchToSignup={switchToSignup}
+                                   onLoginSuccess={handleLoginSuccess}/>
+                    </ModalContent>
+                </Overlay>
+            )}
+
+            {showModal === 'signup' && (
+                <Overlay>
+                    <ModalContent>
+                        <CloseButton onClick={closeModal} aria-label="Close">
+                            <FiX/>
+                        </CloseButton>
+                        <SignupPage onClose={closeModal} onSwitchToLogin={switchToLogin}/>
+                    </ModalContent>
+                </Overlay>
+            )}
+        </NavbarContainer>
+    );
 };
 
-// Prop Types for better type-checking
 Navbar.propTypes = {
-  isDarkMode: PropTypes.bool.isRequired,
-  toggleDarkMode: PropTypes.func.isRequired,
+    isDarkMode: PropTypes.bool.isRequired,
+    toggleDarkMode: PropTypes.func.isRequired,
 };
 
 export default Navbar;
